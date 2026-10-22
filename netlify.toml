@@ -1,0 +1,38 @@
+# MUGI admin portal: its own Netlify site, separate from the public website.
+# The portal is index.html at the root (no build step); its API is
+# netlify/functions/api.mjs at /api/*. Publishing commits content to the
+# public site's GitHub repo, and that site redeploys itself.
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# The public site, served under /site/ on this same address so the editor's
+# preview can be clicked and checked in place. Change the address below to
+# the public site's Netlify (or custom) domain.
+[[redirects]]
+  from = "/site/*"
+  to = "https://mugi-site.netlify.app/:splat"
+  status = 200
+  force = true
+
+# source files that shouldn't be served
+[[redirects]]
+  from = "/lib/*"
+  to = "/404"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/tools/*"
+  to = "/404"
+  status = 404
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "public, max-age=0, must-revalidate"
