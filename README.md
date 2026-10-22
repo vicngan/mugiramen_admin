@@ -75,3 +75,4 @@ against a live account yet. Check the Settings page once the key is set.
 
 Reservations, job applications and staff accounts are sample data. They need
 a database. Until then, drafts of unpublished edits are kept in the browser.
+# mugiramen_admin
