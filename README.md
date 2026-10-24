@@ -90,6 +90,11 @@ Settings gets a message. Staff see new bookings within a minute (the
 Reservations page can also turn on desktop alerts) and can cancel or mark
 no-shows. Each visitor can send at most 5 bookings in 10 minutes.
 
+`netlify/functions/daily.mjs` runs once a day: it deletes bookings dated
+more than 12 months ago (the booking form tells guests so; personal data
+under Decree 13/2023) and, by touching the database, keeps the free Supabase
+project from pausing after a week without activity.
+
 The database is the Supabase project `mugi` (Singapore). Its tables are in
 `db/`; row level security is on with no policies, so only this API, with the
 secret key, can reach them. Find the key under Project settings → API keys →
