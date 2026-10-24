@@ -78,7 +78,8 @@ file), the portal runs in demo mode and nothing is saved.
      (ACASO's monitoring). `MONITOR_URL` is `https://acasohq.up.railway.app`;
      the key comes from Mugi admin's settings page in ACASOHQ. Reported: API
      errors, and bookings whose branch email didn't send. Guests' names and
-     phone numbers are never sent.
+     phone numbers are never sent. The same two settings carry the feedback
+     button's messages (see below); without them it says it couldn't send.
 4. Give it its own domain, for example `admin.mugi.vn`. Every page is sent
    with `noindex` so search engines skip it.
 
@@ -128,6 +129,18 @@ in the `staff` table, `db/002_staff.sql`).
 
 Without a database (local demo), the portal keeps the old shared-password
 sign-in and keeps members in the browser.
+
+## Feedback to ACASO
+
+"Feedback to ACASO" at the bottom of the sidebar (an icon in the top bar on
+a phone) opens a short form: type (problem, request, question or praise),
+message, and name and email, filled in from the signed-in account. The
+current page goes along. It posts to `/api/feedback`, which needs a sign-in
+and passes the message on to ACASOHQ (`POST /api/ingest/message`) with
+`MONITOR_URL` and `MONITOR_KEY`, adding the person's role and branch. The key
+stays on the server. Sending waits at most 5 seconds; if ACASOHQ is slow,
+down or busy, staff see a friendly error. A hidden decoy field drops bot
+messages.
 
 ## Not built yet
 
