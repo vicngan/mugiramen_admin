@@ -56,7 +56,7 @@ file), the portal runs in demo mode and nothing is saved.
 1. Create a new Netlify site from this repo. `netlify.toml` sets everything
    (no build command).
 2. In `netlify.toml`, set the `/site/*` proxy target to the public website's
-   address (it ships as `https://mugi-site.netlify.app`).
+   address (now `https://mugiramen.netlify.app`).
 3. Under **Site configuration → Environment variables**, add:
    - `ADMIN_PASSWORD`: the sign-in password (required; without it, sign-in
      is refused).

@@ -14,7 +14,7 @@
 # the public site's Netlify (or custom) domain.
 [[redirects]]
   from = "/site/*"
-  to = "https://mugi-site.netlify.app/:splat"
+  to = "https://mugiramen.netlify.app/:splat"
   status = 200
   force = true
 
