@@ -11,7 +11,7 @@
 //   SUPABASE_URL, SUPABASE_SECRET_KEY   the reservations database
 //   RESEND_API_KEY, NOTIFY_FROM          optional, emails each branch its new bookings
 //   ADMIN_URL                            optional, this portal's address, linked in those emails
-//   MONITOR_URL, MONITOR_KEY             optional, report failures to ACASOHQ (lib/monitor.mjs)
+//   MONITOR_URL, MONITOR_KEY             optional, report failures and send feedback to ACASOHQ (lib/monitor.mjs)
 import { handleApi, makeBackend } from '../../lib/api.mjs';
 import { makeDb } from '../../lib/db.mjs';
 import { report } from '../../lib/monitor.mjs';

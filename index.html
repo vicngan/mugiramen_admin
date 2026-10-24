@@ -137,6 +137,24 @@
   .ws .dlg .db { padding: 16px 24px; overflow-y: auto; }
   .ws .dlg .df { padding: 14px 24px; border-top: 1px solid var(--line); display: flex; gap: 10px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
   .ws .scrim.top { z-index: 70; }
+  /* feedback to ACASO (sidebar button + dialog) */
+  .ws .fbk { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 40px; padding: 0 10px; margin-bottom: 4px; background: none; border: 0; color: #cfc3ae; font: 500 13px var(--sans); text-align: left; cursor: pointer; }
+  .ws .fbk:hover { color: #fff; background: rgba(255,255,255,.06); }
+  .ws .fbk:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .ws .fbk svg { flex: 0 0 auto; }
+  .ws .fbdlg { width: min(560px, calc(100vw - 32px)); }
+  .ws .fbdlg form.db { display: flex; flex-direction: column; }
+  .ws .fbdlg textarea { width: 100%; min-height: 110px; resize: vertical; }
+  .ws .fbdlg [aria-invalid="true"] { border-color: var(--accent); }
+  .ws .fbtypes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .ws .fbtypes label { position: relative; cursor: pointer; }
+  .ws .fbtypes input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .ws .fbtypes span { display: inline-flex; align-items: center; min-height: 40px; padding: 0 14px; border: 1px solid var(--line); background: var(--card); font-size: 13px; color: var(--ink); }
+  .ws .fbtypes input:checked + span { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+  .ws .fbtypes input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .ws .fb-hp { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+  .ws .fberr { margin: 0; color: var(--accent); font-size: 13px; }
+  .ws .fberr:empty { display: none; }
 
   /* aligned lists: every row uses the same column template */
   .ws .grid-list { border-top: 1px solid var(--line); }
@@ -502,7 +520,9 @@
     .ws .snav button { border-left: 0; border-bottom: 2px solid transparent; white-space: nowrap; flex: 0 0 auto; }
     .ws .snav button.on { border-bottom-color: var(--gold); background: none; }
     .ws .snav .k { display: none; }
-    .ws .side-foot { margin: 0 0 0 auto; border: 0; padding: 0; }
+    .ws .side-foot { margin: 0 0 0 auto; border: 0; padding: 0; display: flex; align-items: center; gap: 2px; }
+    .ws .fbk { width: 44px; min-height: 44px; margin: 0; padding: 0; justify-content: center; }
+    .ws .fbk span { display: none; }
     .ws .me { padding: 0; min-height: 44px; }
     .ws .me .nm { display: none; }
     .ws .setwrap, .ws .sblock { grid-template-columns: minmax(0, 1fr); gap: 12px; }
@@ -627,6 +647,11 @@ const DEMO_JOBS = [
 /* ════════════════ i18n ════════════════ */
 const T = {
   vi: {
+    fb_open: 'Góp ý cho ACASO', fb_title: 'Gửi góp ý cho ACASO', fb_intro: 'Gửi thẳng đến ACASO, đội ngũ làm trang web và trang quản trị này: báo lỗi, đề xuất, câu hỏi hay lời khen.',
+    fb_type: 'Loại', fb_problem: 'Báo lỗi', fb_request: 'Đề xuất', fb_question: 'Câu hỏi', fb_praise: 'Khen ngợi',
+    fb_message: 'Nội dung', fb_name: 'Tên', fb_email: 'Email', fb_optional: 'không bắt buộc', fb_send: 'Gửi', fb_sending: 'Đang gửi…',
+    fb_thanks: 'Cảm ơn! ACASO đã nhận được góp ý của bạn.', fb_again: 'Gửi góp ý khác', fb_needMsg: 'Vui lòng nhập nội dung.', fb_badEmail: 'Email này có vẻ chưa đúng.',
+    fb_busy: 'Hiện có quá nhiều góp ý. Vui lòng thử lại sau ít phút.', fb_failed: 'Chưa gửi được. Vui lòng thử lại sau.', fb_page: 'Kèm theo trang đang mở: {page}',
     settings: 'Cài đặt', settingsSub: 'Tài khoản của bạn, thành viên và quyền truy cập, quy tắc đặt bàn.',
     set_account: 'Tài khoản của tôi', set_members: 'Thành viên & quyền', set_booking: 'Đặt bàn & thông báo', set_website: 'Website & dữ liệu',
     profile: 'Hồ sơ', profileD: 'Tên của bạn hiện trong lịch sử thay đổi và khi xác nhận đặt bàn.', fullName: 'Họ tên',
@@ -727,6 +752,11 @@ const T = {
     v_img: 'thiếu mô tả ảnh (tiếng Việt)', v_url: 'đường dẫn phải bắt đầu bằng https://', socialNote: 'Biểu tượng chỉ hiện ở chân trang khi đã có đường dẫn. Để trống để ẩn.', v_name: 'thiếu tên tiếng Việt', v_price: 'thiếu giá',
   },
   en: {
+    fb_open: 'Feedback to ACASO', fb_title: 'Send feedback to ACASO', fb_intro: 'This goes straight to ACASO, the team that builds this website and portal: problems, requests, questions or praise.',
+    fb_type: 'Type', fb_problem: 'Problem', fb_request: 'Request', fb_question: 'Question', fb_praise: 'Praise',
+    fb_message: 'Message', fb_name: 'Name', fb_email: 'Email', fb_optional: 'optional', fb_send: 'Send', fb_sending: 'Sending…',
+    fb_thanks: 'Thank you! ACASO got your message.', fb_again: 'Send another', fb_needMsg: 'Please write a message.', fb_badEmail: 'That email doesn’t look right.',
+    fb_busy: 'Too many messages right now. Please try again in a few minutes.', fb_failed: 'It couldn’t be sent. Please try again later.', fb_page: 'Sent with the page you’re on: {page}',
     settings: 'Settings', settingsSub: 'Your account, members and access, booking rules.',
     set_account: 'My account', set_members: 'Members & access', set_booking: 'Bookings & notifications', set_website: 'Website & data',
     profile: 'Profile', profileD: 'Your name appears in the change history and on bookings you confirm.', fullName: 'Full name',
@@ -1129,6 +1159,7 @@ function readPhoto(file, name) {
 }
 
 /* ════════════════ shared bits ════════════════ */
+const ICON_FB = '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></svg>';
 const ICON_A11Y = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="4.5" r="1.8" fill="currentColor" stroke="none"/><path d="M5 8.5l7 1.5 7-1.5M12 10v4.5M12 14.5l-3 6M12 14.5l3 6"/></svg>';
 const langBtns = (cls = 'sw') => `<div class="${cls}" role="group" aria-label="Language">${['vi', 'en'].map(l => `<button type="button" data-act="lang" data-v="${l}" aria-pressed="${S.lang === l}">${l.toUpperCase()}</button>`).join('')}</div>`;
 const stChip = (s, label) => `<span class="st ${s}">${label || t('s_' + s)}</span>`;
@@ -1253,6 +1284,7 @@ function vNav() {
       `<button data-act="go" data-v="${k}" class="${S.view === k ? 'on' : ''}" ${S.view === k ? 'aria-current="page"' : ''}><span><span class="k">${n}</span>${t(k)}</span>${c ? `<span class="badge ${cls || ''}">${c}</span>` : ''}</button>`).join('')}
     </nav>
     <div class="side-foot">
+      <button type="button" class="fbk" data-act="feedback" aria-haspopup="dialog" aria-label="${t('fb_open')}" title="${t('fb_open')}">${ICON_FB}<span>${t('fb_open')}</span></button>
       <button class="me ${S.view === 'settings' && S.setTab === 'account' ? 'on' : ''}" data-act="go" data-v="settings" data-tab2="account" title="${t('set_account')}"><span class="av">${esc(who.split(' ').pop()[0] || 'M')}</span><span class="nm">${esc(who)}</span></button>
     </div>`;
 }
@@ -1575,6 +1607,48 @@ function vSetMembers() {
     + sBlock(t('rolesL'), t('rolesD'), `<div class="rolecards" style="pointer-events:none">${['owner', 'manager', 'staff'].map(r => `<div class="rolecard"><b>${roleName(r)}</b><small>${t('rd_' + r)}</small></div>`).join('')}</div>`)
     + sBlock(t('signupL'), t('signupD'), sCheck('allowSignup', t('allowSignup')));
 }
+// Feedback to ACASO, the studio: POST api/feedback, which passes it on to ACASOHQ (lib/monitor.mjs → sendMessage).
+const FB_TYPES = ['problem', 'request', 'question', 'praise'];
+const fbPage = () => '/' + S.view + (S.view === 'settings' ? '/' + S.setTab : S.edit ? '/edit' : '');
+function vFeedbackDialog() {
+  const m = S.modal, d = m.data, inv = f => m.field === f ? ' aria-invalid="true" aria-describedby="fb-err"' : '';
+  return `<div class="scrim top" data-act="${m.busy ? '' : 'closeModal'}"></div><div class="dlg fbdlg" role="dialog" aria-modal="true" aria-labelledby="dlg-t">
+    <div class="dh"><div><span class="num">ACASO</span><h2 id="dlg-t">${t('fb_title')}</h2></div><button class="x" data-act="closeModal" aria-label="Close" ${m.busy ? 'disabled' : ''}>×</button></div>
+    ${m.done ? `<div class="db"><div class="ldone" style="padding:8px 0"><span class="mark" aria-hidden="true">✓</span><p role="status" style="margin:0">${t('fb_thanks')}</p></div></div>
+    <div class="df"><button class="cta ghost sm" data-act="feedbackAgain">${t('fb_again')}</button><button class="cta sm" data-act="closeModal">${t('done')}</button></div>`
+    : `<form class="db stack" style="gap:14px" data-act-submit="sendFeedback" novalidate>
+      <p class="muted" style="margin:0;font-size:13px">${t('fb_intro')}</p>
+      <fieldset class="plain"><legend>${t('fb_type')}</legend><div class="fbtypes">${FB_TYPES.map(k => `<label><input type="radio" name="fb-type" data-fbtype="${k}" ${d.type === k ? 'checked' : ''}><span>${t('fb_' + k)}</span></label>`).join('')}</div></fieldset>
+      <div class="field"><label for="fb-msg">${t('fb_message')}</label><textarea id="fb-msg" data-fb="message" rows="5" maxlength="5000" aria-required="true"${inv('message')}>${esc(d.message)}</textarea></div>
+      <div class="row2">
+        <div class="field"><label for="fb-name">${t('fb_name')} <small class="muted">(${t('fb_optional')})</small></label><input id="fb-name" data-fb="name" maxlength="120" autocomplete="name" value="${esc(d.name)}"></div>
+        <div class="field"><label for="fb-email">${t('fb_email')} <small class="muted">(${t('fb_optional')})</small></label><input id="fb-email" data-fb="email" type="email" maxlength="200" autocomplete="email" value="${esc(d.email)}"${inv('email')}></div>
+      </div>
+      <div class="fb-hp" aria-hidden="true"><label>Website <input name="website" data-fb="website" tabindex="-1" autocomplete="off"></label></div>
+      <p class="muted" style="margin:0;font-size:12px">${esc(t('fb_page').replace('{page}', fbPage()))}</p>
+      <p id="fb-err" class="fberr" role="alert">${m.error ? t('fb_' + m.error) : ''}</p>
+      <button type="submit" hidden></button>
+    </form>
+    <div class="df"><button class="cta ghost sm" data-act="closeModal" ${m.busy ? 'disabled' : ''}>${t('cancel')}</button><button class="cta red sm" data-act="sendFeedback" ${m.busy ? 'disabled aria-busy="true"' : ''}>${m.busy ? t('fb_sending') : t('fb_send')}</button></div>`}
+  </div>`;
+}
+async function sendFeedback() {
+  const m = S.modal; if (!m || m.type !== 'feedback' || m.busy) return;
+  const d = m.data; m.error = ''; m.field = '';
+  if (!d.message.trim()) { m.error = 'needMsg'; m.field = 'message'; }
+  else if (d.email.trim() && !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(d.email.trim())) { m.error = 'badEmail'; m.field = 'email'; }
+  if (m.error) { renderOverlay(); document.querySelector('.fbdlg [aria-invalid="true"]')?.focus(); return; }
+  m.busy = true; renderOverlay();
+  try {
+    await API.call('POST', 'feedback', { type: d.type, message: d.message, name: d.name, email: d.email, page: fbPage(), website: d.website || '' });
+    m.done = true; d.message = '';
+  } catch (e) { m.error = e.message === 'busy' ? 'busy' : 'failed'; }
+  m.busy = false;
+  if (S.modal !== m) return;
+  renderOverlay();
+  document.querySelector(m.done ? '.fbdlg [data-act="feedbackAgain"]' : '.fbdlg [data-act="sendFeedback"]')?.focus();
+}
+
 function vMemberDialog() {
   const m = S.modal, d = m.data, self = d.email === S.me.email;
   return `<div class="scrim top" data-act="closeModal"></div><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-t">
@@ -2144,6 +2218,7 @@ function vModal() {
       : `<button class="cta red sm" data-act="publishSite">${t('publishSite')}</button>`}</div></div>`;
   }
   if (m.type === 'member') return vMemberDialog();
+  if (m.type === 'feedback') return vFeedbackDialog();
   if (m.type === 'link') return `<div class="scrim top" data-act="closeModal"></div><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-t">
     <div class="dh"><h2 id="dlg-t">${esc(t('linkTitle').replace('{name}', m.name))}</h2><button class="x" data-act="closeModal" aria-label="Close">×</button></div>
     <div class="db"><p class="muted" style="margin:0 0 14px">${t('linkD')}</p><div class="field"><label for="lk-url">Link</label><input id="lk-url" readonly value="${esc(m.url)}" onfocus="this.select()"></div></div>
@@ -2189,6 +2264,8 @@ function render() {
 }
 let shownModal = null;
 function closeModal() {
+  const back = S.modal?.type === 'feedback';
+  if (back) setTimeout(() => document.querySelector('.fbk')?.focus(), 200);
   const o = document.getElementById('overlay');
   const parts = o ? o.querySelectorAll('.dlg, .scrim.top') : [];
   parts.forEach(x => x.classList.add('out'));
@@ -2282,6 +2359,9 @@ document.addEventListener('click', async ev => {
   switch (a) {
     case 'lang': S.lang = v; break;
     case 'a11y': window.mugiA11y?.toggle(el); return;
+    case 'feedback': S.modal = { type: 'feedback', data: { type: 'question', message: '', name: S.me?.name || '', email: S.me?.email || '', website: '' } }; renderOverlay(); setTimeout(() => document.getElementById('fb-msg')?.focus(), 60); return;
+    case 'sendFeedback': sendFeedback(); return;
+    case 'feedbackAgain': S.modal.done = false; renderOverlay(); setTimeout(() => document.getElementById('fb-msg')?.focus(), 30); return;
     case 'retryPreview': reloadFrame(); return;
     case 'forgot': S.loginEmail = document.getElementById('u').value.trim(); S.loginNote = !S.loginNote; S.loginErr = ''; break;
     case 'pw': { const i = document.getElementById(el.getAttribute('aria-controls')), show = i.type === 'password'; i.type = show ? 'text' : 'password'; el.textContent = show ? t('pwHide') : t('pwShow'); el.setAttribute('aria-pressed', show); return; }
@@ -2469,6 +2549,7 @@ document.addEventListener('change', async ev => {
   }
   if (el.dataset.a11y) { const st = window.mugiA11y.get(); st[el.dataset.a11y] = el.checked; window.mugiA11y.set(st); return; }
   if (el.dataset.mrole && S.modal) { const d = S.modal.data; d.role = el.dataset.mrole; d.perms = { ...ROLE_PERMS[d.role] }; d.branch = d.role === 'staff' ? (d.branch === 'all' ? BRANCHES[0].id : d.branch) : 'all'; renderOverlay(); return; }
+  if (el.dataset.fbtype && S.modal?.type === 'feedback') { S.modal.data.type = el.dataset.fbtype; return; }
   if (el.dataset.mperm && S.modal) { S.modal.data.perms[el.dataset.mperm] = el.checked; return; }
   if (el.dataset.m && el.tagName === 'SELECT' && S.modal) { S.modal.data[el.dataset.m] = el.value; return; }
   if (el.dataset.act === 'role') {
@@ -2497,6 +2578,12 @@ document.addEventListener('change', async ev => {
 });
 document.addEventListener('input', ev => {
   const el = ev.target;
+  if (el.dataset.fb && S.modal?.type === 'feedback') {
+    S.modal.data[el.dataset.fb] = el.value;
+    // a field's error goes once it is being fixed
+    if (S.modal.field === el.dataset.fb) { S.modal.error = S.modal.field = ''; el.removeAttribute('aria-invalid'); el.removeAttribute('aria-describedby'); document.getElementById('fb-err').textContent = ''; }
+    return;
+  }
   if (el.dataset.m && S.modal && el.tagName === 'INPUT') { S.modal.data[el.dataset.m] = el.value; return; }
   if (el.dataset.path && el.type !== 'checkbox') { setP(S.draft, JSON.parse(el.dataset.path), el.value); onDraftChange(); return; }
   if (el.dataset.at) {
@@ -2516,7 +2603,19 @@ document.addEventListener('input', ev => {
   } else S.edit.data[k] = el.value;
   document.getElementById('pv').innerHTML = vPostPreview();
 });
+document.addEventListener('submit', ev => {
+  if (ev.target.dataset.actSubmit === 'sendFeedback') { ev.preventDefault(); sendFeedback(); }
+});
 document.addEventListener('keydown', ev => {
+  // keep Tab inside the feedback dialog while it is open
+  const fd = ev.key === 'Tab' && document.querySelector('.fbdlg:not(.out)');
+  if (fd) {
+    const els = [...fd.querySelectorAll('button:not([disabled]):not([hidden]), input:not([tabindex="-1"]), textarea')].filter(x => x.offsetParent);
+    const first = els[0], last = els[els.length - 1];
+    if (!fd.contains(document.activeElement)) { ev.preventDefault(); first?.focus(); }
+    else if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+    else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+  }
   if (ev.key === 'Escape' && S.modal && !S.modal.busy) closeModal();
   else if (ev.key === 'Escape' && S.sel) { S.sel = null; renderOverlay(); }
 });
