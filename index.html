@@ -671,6 +671,7 @@ const T = {
     noBookings: 'Không có đặt bàn nào cho bộ lọc này.', request: 'Yêu cầu đặc biệt', none: 'Không có', confirmVia: 'Khách muốn xác nhận qua', via_call: 'Gọi điện', via_sms: 'Tin nhắn SMS', via_zalo: 'Zalo',
     setupNote: 'Lần đăng nhập đầu tiên: dùng email của bạn và mật khẩu chung (ADMIN_PASSWORD). Tài khoản này sẽ là chủ nhà hàng.', firstOwner: 'Đã tạo tài khoản chủ nhà hàng. Hãy đổi mật khẩu trong Cài đặt → Tài khoản.', linkTitle: 'Gửi link này cho {name}', linkD: 'Link dùng một lần, hết hạn sau 7 ngày. Gửi qua Zalo hoặc tin nhắn; người nhận mở link để đặt mật khẩu.', copyLink: 'Sao chép link', copied: 'Đã sao chép', newLink: 'Tạo link đặt mật khẩu', newLinkD: 'Dùng khi người này quên mật khẩu hoặc chưa nhận được link.', inviteTitle: 'Đặt mật khẩu', inviteSub: 'Chào {name}, đặt mật khẩu để bắt đầu dùng trang quản trị MUGI.', inviteSave: 'Lưu và đăng nhập',
     appsSoon: 'Chưa có form ứng tuyển online. Ứng viên đang liên hệ qua điện thoại hoặc Zalo, theo cách bạn chọn ở mỗi vị trí.',
+    trafficOff: 'Chưa kết nối Umami nên chưa có số liệu. Thêm UMAMI_API_KEY và UMAMI_WEBSITE_ID trên Netlify để xem lượt truy cập thật.',
     received: 'Nhận qua website', minsAgo: 'phút trước', hoursAgo: 'giờ trước', history: 'Lịch sử',
     notNotified: 'Chưa báo được cho chi nhánh', newBooking: 'Đặt bàn mới', newBookings: 'đặt bàn mới', recent24: 'Đặt mới trong 24 giờ', fromSite: 'từ website, đã tự xác nhận', latest: 'Đặt bàn mới nhận', notifyOn: 'Bật thông báo trên máy này', notifyOnD: 'Báo khi có đặt bàn mới, kể cả khi đang mở tab khác.', bookingNoteLive: 'Form đặt bàn trên website dùng các quy tắc này. Đặt bàn online được xác nhận ngay và email được gửi tới chi nhánh.', savedSet: 'Đã lưu', guestMsgSoon: 'Chưa hoạt động: cần kết nối dịch vụ gửi SMS/Zalo.',
     bookingN: 'Đặt bàn', date: 'Ngày', phone: 'Điện thoại', notifiedBy: 'Đã gửi email cho chi nhánh',
@@ -769,6 +770,7 @@ const T = {
     noBookings: 'No bookings for this filter.', request: 'Special request', none: 'None', confirmVia: 'Guest wants confirmation by', via_call: 'Phone call', via_sms: 'Text message', via_zalo: 'Zalo',
     setupNote: 'First sign-in: use your email and the shared password (ADMIN_PASSWORD). This account becomes the owner.', firstOwner: 'Owner account created. Change your password in Settings → Account.', linkTitle: 'Send this link to {name}', linkD: 'One-time link, valid for 7 days. Send it by Zalo or text; they open it to set their password.', copyLink: 'Copy link', copied: 'Copied', newLink: 'Make a set-password link', newLinkD: 'For when they forgot their password or never got the link.', inviteTitle: 'Set your password', inviteSub: 'Hi {name}, set a password to start using the MUGI admin.', inviteSave: 'Save and sign in',
     appsSoon: 'There’s no online application form yet. Applicants contact you by phone or Zalo, as set on each opening.',
+    trafficOff: 'Umami isn’t connected, so there are no numbers yet. Add UMAMI_API_KEY and UMAMI_WEBSITE_ID on Netlify to see real visits.',
     received: 'Received via website', minsAgo: 'min ago', hoursAgo: 'h ago', history: 'History',
     notNotified: 'Branch not notified', newBooking: 'New booking', newBookings: 'new bookings', recent24: 'New in the last 24 hours', fromSite: 'from the website, confirmed automatically', latest: 'Latest bookings', notifyOn: 'Turn on alerts on this device', notifyOnD: 'Get an alert for each new booking, even when another tab is open.', bookingNoteLive: 'The website’s booking form uses these rules. Online bookings are confirmed straight away and the branch gets an email.', savedSet: 'Saved', guestMsgSoon: 'Not active yet: needs an SMS/Zalo sending service.',
     bookingN: 'Booking', date: 'Date', phone: 'Phone', notifiedBy: 'Branch notified by email',
@@ -933,9 +935,9 @@ const DEFAULT_SETTINGS = {
   allowSignup: true, domain: 'mugiramen.netlify.app',
   booking: { maxOnline: 10, daysAhead: 30, lastLunch: '13:30', lastDinner: '21:00', closed: [], autoText: true, remind: false },
   notify: {
-    'mon-city': { email: 'moncity@mugi.vn', zalo: '0966 75 0202' },
-    'golden-palace': { email: 'goldenpalace@mugi.vn', zalo: '0866 60 7560' },
-    'phan-chu-trinh': { email: 'phanchutrinh@mugi.vn', zalo: '0866 75 3375' },
+    'mon-city': { email: '', zalo: '0966 75 0202' },
+    'golden-palace': { email: '', zalo: '0866 60 7560' },
+    'phan-chu-trinh': { email: '', zalo: '0866 75 3375' },
   },
   mine: { phone: '', nBooking: true, nApps: true, nExpiring: true, byEmail: true, byZalo: false },
 };
@@ -1065,6 +1067,7 @@ function afterLogin() {
   S.view = isStaff() ? 'reservations' : 'overview';
   bookings = dbOn() ? [] : clone(SAMPLE_BOOKINGS);
   applications = dbOn() ? [] : clone(SAMPLE_APPS);
+  if (accountsOn()) { users = []; S.pendingSignups = []; }
   render();
   if (S.firstOwner) { S.firstOwner = false; toast(t('firstOwner')); }
   loadMembers().then(() => document.getElementById('nav') && (document.getElementById('nav').innerHTML = vNav())).catch(() => {});
@@ -1670,7 +1673,8 @@ function vSetWebsite() {
   return sBlock(t('siteLive'), t('siteLiveD'), `<div class="livecard">${sv ? stChip('published', t('siteOnline')) : stChip('draft', t('modeDemo'))}<a href="https://${esc(settings.domain)}" target="_blank" rel="noopener">${esc(settings.domain)} ↗</a></div>
         <dl class="sdl"><dt>${t('lastUpdate')}</dt><dd>${lastDate ? esc(new Date(lastDate).toLocaleString(loc(), { dateStyle: 'medium', timeStyle: 'short' })) : lastDate === null ? '…' : t('neverPub')}</dd></dl>
         ${sField('domain', t('domain'), 'text', 'placeholder="mugiramen.netlify.app"')}`)
-    + sBlock(t('traffic'), real ? t('trafficLive') : S[key]?.error ? t('trafficErr') : t('trafficD'), `
+    + (sv && !real ? sBlock(t('traffic'), S[key]?.error ? t('trafficErr') : '', `<p class="muted" style="margin:0">${S[key] === null ? '…' : esc(S[key]?.error || t('trafficOff'))}</p>`, true)
+    : sBlock(t('traffic'), real ? t('trafficLive') : t('trafficD'), `
         <div class="tiles mtiles">
           <div class="tile"><div class="lbl">${t('visitorsL')}</div><div class="v">${fmtN(visitors)}</div></div>
           <div class="tile"><div class="lbl">${t('viewsL')}</div><div class="v">${fmtN(views)}</div></div>
@@ -1683,7 +1687,7 @@ function vSetWebsite() {
           <div><span class="lab">${t('sources')}</span>${hbars(real ? real.sources.map(([x, v]) => [srcName(x), v]) : [['Google', 41], ['Facebook', 27], [t('direct'), 18], ['Zalo', 9], [t('other'), 5]])}</div>
           <div><span class="lab">${t('devices')}</span>${hbars(real ? real.devices.map(([x, v]) => [devName(x), v]) : [[t('mobile'), 78], [t('desktop'), 19], [t('tablet'), 3]])}</div>
         </div>`, true,
-        `<div class="seg" role="group" aria-label="${t('traffic')}">${[7, 30].map(d => `<button type="button" data-act="statsRange" data-v="${d}" aria-pressed="${n === d}">${d} ${t('days')}</button>`).join('')}</div>`)
+        `<div class="seg" role="group" aria-label="${t('traffic')}">${[7, 30].map(d => `<button type="button" data-act="statsRange" data-v="${d}" aria-pressed="${n === d}">${d} ${t('days')}</button>`).join('')}</div>`))
     + sBlock(t('backup'), t('backupD'), `<button class="cta ghost sm" data-act="dlContent" style="align-self:flex-start">↓ ${t('dlContent')}</button>`);
 }
 
