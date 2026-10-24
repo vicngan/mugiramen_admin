@@ -59,7 +59,10 @@
   .ws .tile .v { font-family: var(--mincho); font-size: 40px; line-height: 1.1; margin-top: 6px; font-variant-numeric: tabular-nums; }
   .ws .tile .v.red { color: var(--accent); }
   .ws .tile .hint { font-size: 12px; color: var(--muted); margin-top: auto; padding-top: 10px; line-height: 1.5; }
-  .ws .cols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 36px; }
+  .ws .cols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 36px; align-items: start; }
+  .ws .cols .blk { border: 1px solid var(--line); background: var(--card); padding: 18px 20px 8px; }
+  .ws .cols .blk .mini:last-child { border-bottom: 0; }
+  .ws .cols .blk > p.muted { margin: 14px 0 10px; }
   .ws .blk h2 { font-size: 22px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
   .ws .blk h2 button { font: 500 13px var(--sans); background: none; border: 0; border-bottom: 1px solid var(--ink); cursor: pointer; color: var(--ink); padding: 0; }
   .ws .mini { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
@@ -540,6 +543,8 @@
   @media (max-width: 520px) {
     .ws .drawer .df { grid-template-columns: minmax(0, 1fr); }
     .ws .tile .v { font-size: 32px; }
+    /* the status badge squeezes the guest's name; every booking here is confirmed anyway */
+    .ws .cols .blk .mini .qa .st { display: none; }
     .ws .tile { min-height: 132px; }
     .ws .photo { grid-template-columns: 88px minmax(0, 1fr); }
     .ws .photo .th { width: 88px; height: 66px; }
@@ -672,6 +677,7 @@ const T = {
     setupNote: 'Lần đăng nhập đầu tiên: dùng email của bạn và mật khẩu chung (ADMIN_PASSWORD). Tài khoản này sẽ là chủ nhà hàng.', firstOwner: 'Đã tạo tài khoản chủ nhà hàng. Hãy đổi mật khẩu trong Cài đặt → Tài khoản.', linkTitle: 'Gửi link này cho {name}', linkD: 'Link dùng một lần, hết hạn sau 7 ngày. Gửi qua Zalo hoặc tin nhắn; người nhận mở link để đặt mật khẩu.', copyLink: 'Sao chép link', copied: 'Đã sao chép', newLink: 'Tạo link đặt mật khẩu', newLinkD: 'Dùng khi người này quên mật khẩu hoặc chưa nhận được link.', inviteTitle: 'Đặt mật khẩu', inviteSub: 'Chào {name}, đặt mật khẩu để bắt đầu dùng trang quản trị MUGI.', inviteSave: 'Lưu và đăng nhập',
     appsSoon: 'Chưa có form ứng tuyển online. Ứng viên đang liên hệ qua điện thoại hoặc Zalo, theo cách bạn chọn ở mỗi vị trí.',
     trafficOff: 'Chưa kết nối Umami nên chưa có số liệu. Thêm UMAMI_API_KEY và UMAMI_WEBSITE_ID trên Netlify để xem lượt truy cập thật.',
+    appsNone: 'Chưa có hồ sơ mới. Ứng viên liên hệ qua điện thoại hoặc Zalo cho đến khi có form ứng tuyển online.',
     received: 'Nhận qua website', minsAgo: 'phút trước', hoursAgo: 'giờ trước', history: 'Lịch sử',
     notNotified: 'Chưa báo được cho chi nhánh', newBooking: 'Đặt bàn mới', newBookings: 'đặt bàn mới', recent24: 'Đặt mới trong 24 giờ', fromSite: 'từ website, đã tự xác nhận', latest: 'Đặt bàn mới nhận', notifyOn: 'Bật thông báo trên máy này', notifyOnD: 'Báo khi có đặt bàn mới, kể cả khi đang mở tab khác.', bookingNoteLive: 'Form đặt bàn trên website dùng các quy tắc này. Đặt bàn online được xác nhận ngay và email được gửi tới chi nhánh.', savedSet: 'Đã lưu', guestMsgSoon: 'Chưa hoạt động: cần kết nối dịch vụ gửi SMS/Zalo.',
     bookingN: 'Đặt bàn', date: 'Ngày', phone: 'Điện thoại', notifiedBy: 'Đã gửi email cho chi nhánh',
@@ -771,6 +777,7 @@ const T = {
     setupNote: 'First sign-in: use your email and the shared password (ADMIN_PASSWORD). This account becomes the owner.', firstOwner: 'Owner account created. Change your password in Settings → Account.', linkTitle: 'Send this link to {name}', linkD: 'One-time link, valid for 7 days. Send it by Zalo or text; they open it to set their password.', copyLink: 'Copy link', copied: 'Copied', newLink: 'Make a set-password link', newLinkD: 'For when they forgot their password or never got the link.', inviteTitle: 'Set your password', inviteSub: 'Hi {name}, set a password to start using the MUGI admin.', inviteSave: 'Save and sign in',
     appsSoon: 'There’s no online application form yet. Applicants contact you by phone or Zalo, as set on each opening.',
     trafficOff: 'Umami isn’t connected, so there are no numbers yet. Add UMAMI_API_KEY and UMAMI_WEBSITE_ID on Netlify to see real visits.',
+    appsNone: 'No new applications. Applicants call or message on Zalo until the online form is ready.',
     received: 'Received via website', minsAgo: 'min ago', hoursAgo: 'h ago', history: 'History',
     notNotified: 'Branch not notified', newBooking: 'New booking', newBookings: 'new bookings', recent24: 'New in the last 24 hours', fromSite: 'from the website, confirmed automatically', latest: 'Latest bookings', notifyOn: 'Turn on alerts on this device', notifyOnD: 'Get an alert for each new booking, even when another tab is open.', bookingNoteLive: 'The website’s booking form uses these rules. Online bookings are confirmed straight away and the branch gets an email.', savedSet: 'Saved', guestMsgSoon: 'Not active yet: needs an SMS/Zalo sending service.',
     bookingN: 'Booking', date: 'Date', phone: 'Phone', notifiedBy: 'Branch notified by email',
@@ -1288,9 +1295,9 @@ function vOverview() {
       ${drafts.length ? `<div class="blk"><h2>${t('drafts')}</h2>
         ${drafts.map(([k, p]) => `<div class="mini"><span class="st draft">${t('p_draft')}</span><div>${esc(p.title.vi) || '—'}<small>${t(k)}</small></div><div class="rowacts"><button data-act="${k === 'news' ? 'editPost' : 'editJob'}" data-id="${p.id}">${t('edit')}</button></div></div>`).join('')}
       </div>` : ''}
-      ${applications.some(a => !a.seen) ? `      <div class="blk"><h2>${t('newApps')} <button data-act="go" data-v="careers" data-tab="apps">${t('seeAll')} →</button></h2>
-        ${applications.filter(a => !a.seen).map(a => `<div class="mini"><span class="av">${esc(a.name.split(' ').pop()[0])}</span><div>${esc(a.name)}<small>${esc(a.job)}</small></div><span class="muted num-t" style="font-size:12px">${fmtShort(a.date)}</span></div>`).join('')}
-      </div>` : ''}
+      <div class="blk"><h2>${t('newApps')} <button data-act="go" data-v="careers" data-tab="apps">${t('seeAll')} →</button></h2>
+        ${applications.some(a => !a.seen) ? applications.filter(a => !a.seen).map(a => `<div class="mini"><span class="av">${esc(a.name.split(' ').pop()[0])}</span><div>${esc(a.name)}<small>${esc(a.job)}</small></div><span class="muted num-t" style="font-size:12px">${fmtShort(a.date)}</span></div>`).join('') : `<p class="muted">${t(dbOn() ? 'appsNone' : 'nothing')}</p>`}
+      </div>
     </div>
   </div></div>`;
 }
