@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>MUGI Admin</title>
-<link rel="icon" type="image/svg+xml" href="site/assets/mugi-icon.svg">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600&family=Shippori+Mincho:wght@500;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500&display=swap">
 <link rel="stylesheet" href="site/assets/washi.css">
 <script src="site/assets/a11y.js" defer></script>
@@ -57,7 +59,10 @@
   .ws .tile .v { font-family: var(--mincho); font-size: 40px; line-height: 1.1; margin-top: 6px; font-variant-numeric: tabular-nums; }
   .ws .tile .v.red { color: var(--accent); }
   .ws .tile .hint { font-size: 12px; color: var(--muted); margin-top: auto; padding-top: 10px; line-height: 1.5; }
-  .ws .cols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 36px; }
+  .ws .cols { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 36px; align-items: start; }
+  .ws .cols .blk { border: 1px solid var(--line); background: var(--card); padding: 18px 20px 8px; }
+  .ws .cols .blk .mini:last-child { border-bottom: 0; }
+  .ws .cols .blk > p.muted { margin: 14px 0 10px; }
   .ws .blk h2 { font-size: 22px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
   .ws .blk h2 button { font: 500 13px var(--sans); background: none; border: 0; border-bottom: 1px solid var(--ink); cursor: pointer; color: var(--ink); padding: 0; }
   .ws .mini { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
@@ -82,7 +87,7 @@
   .ws .daynav { display: flex; align-items: center; gap: 4px; }
   .ws .daynav button { width: 44px; height: 44px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font-size: 18px; color: var(--ink); }
   .ws .daynav .day { font-family: var(--mincho); font-size: 22px; padding: 0 12px; min-width: 200px; }
-  .ws .daynav .today { font: 500 13px var(--sans); width: auto; padding: 0 12px; }
+  .ws .daynav .today { font: 500 13px var(--sans); width: auto; padding: 0 12px; white-space: nowrap; flex: 0 0 auto; }
   .ws .pill { min-height: 38px; font-size: 13px; padding: 0 14px; }
   .ws .pill .c { color: var(--muted); margin-left: 6px; font-size: 12px; }
   .ws .pill.on .c { color: #cfc3ae; }
@@ -377,7 +382,7 @@
   /* Reservations only: a slimmer header and filter bar so more bookings fit on screen */
   .ws .main.res .head { padding-bottom: 12px; }
   .ws .main.res .daynav button { width: 38px; height: 38px; }
-  .ws .main.res .daynav .today { height: 38px; }
+  .ws .main.res .daynav .today { height: 38px; width: auto; }
   .ws .main.res .daynav .day { font-size: 19px; min-width: 170px; }
   .ws .main.res .pill { min-height: 34px; }
   .ws .main.res .filters { gap: 10px; }
@@ -538,6 +543,8 @@
   @media (max-width: 520px) {
     .ws .drawer .df { grid-template-columns: minmax(0, 1fr); }
     .ws .tile .v { font-size: 32px; }
+    /* the status badge squeezes the guest's name; every booking here is confirmed anyway */
+    .ws .cols .blk .mini .qa .st { display: none; }
     .ws .tile { min-height: 132px; }
     .ws .photo { grid-template-columns: 88px minmax(0, 1fr); }
     .ws .photo .th { width: 88px; height: 66px; }
@@ -587,11 +594,13 @@ const SAMPLE_BOOKINGS = [
   B(2, '18:00', 'Mai Anh Tuấn', '0398 552 017', 10, 'golden-palace', 'new', 'Nhóm 10 người, có trẻ em'),
 ];
 let bookings = [];
-const applications = [
+// Shown in demo mode only; the portal has no applications until the online form is built.
+const SAMPLE_APPS = [
   { name: 'Lương Văn Hiếu', phone: '0961 202 384', job: 'Phụ bếp ramen', date: iso(dayAt(0)), note: 'Có thể bắt đầu từ tháng 11', seen: false },
   { name: 'Phan Thị Hồng', phone: '0834 671 029', job: 'Phụ bếp ramen', date: iso(dayAt(-1)), note: 'Đã làm 1 năm tại quán phở', seen: false },
   { name: 'Kiều Minh Quân', phone: '0357 448 190', job: 'Phụ bếp ramen', date: iso(dayAt(-3)), note: '', seen: true },
 ];
+let applications = [];
 const DEFAULT_USERS = [
   { name: 'Nguyễn Khánh Linh', email: 'linh@mugi.vn', role: 'owner', branch: 'all', last: 0 },
   { name: 'Trịnh Văn Tùng', email: 'tung@mugi.vn', role: 'manager', branch: 'all', last: 2 },
@@ -651,7 +660,7 @@ const T = {
     suErrName: 'Nhập họ tên.', suErrEmail: 'Email chưa đúng.', suErrPw: 'Mật khẩu cần ít nhất 8 ký tự.', suErrTaken: 'Email này đã có tài khoản hoặc đang chờ duyệt.',
     pendingApproval: 'Tài khoản đang chờ chủ nhà hàng duyệt.', protoStore: 'Bản mẫu: thành viên và cài đặt được lưu trên trình duyệt này cho đến khi có cơ sở dữ liệu.',
     admin: 'Quản trị', overview: 'Tổng quan', reservations: 'Đặt bàn', site: 'Trang web', news: 'Tin tức & Ưu đãi', careers: 'Tuyển dụng', staff: 'Tài khoản',
-    signIn: 'Đăng nhập', user: 'Email', pass: 'Mật khẩu', loginTitle: 'Đăng nhập', loginSub: 'Trang quản trị dành cho nhân viên MUGI.', pwShow: 'Hiện', pwHide: 'Ẩn', siteLive: 'Website', siteLiveD: 'Trang khách đang xem.', siteOnline: 'Đang hoạt động', lastUpdate: 'Cập nhật lần cuối', neverPub: 'Chưa đăng lần nào từ trang quản trị', traffic: 'Lượt truy cập', trafficD: 'Dữ liệu mẫu. Số thật hiện khi Umami được kết nối (xem README).', trafficLive: 'Số liệu thật từ Umami.', trafficErr: 'Không đọc được số liệu từ Umami lúc này; đang hiện dữ liệu mẫu.', days: 'ngày', visitorsL: 'Khách truy cập', viewsL: 'Lượt xem trang', clicksL: 'Bấm “Đặt bàn”', rateL: 'Tỉ lệ bấm đặt bàn', perDay: 'Khách truy cập mỗi ngày', visitorsUnit: 'khách', todaySoFar: 'hôm nay, đến giờ', topPages: 'Trang xem nhiều nhất', sources: 'Khách đến từ', devices: 'Thiết bị', direct: 'Trực tiếp', other: 'Khác', noPosts: 'Chưa có bài viết nào. Bấm “+ Bài mới” để viết bài đầu tiên.', noMatch: 'Không có bài nào ở mục này.', noJobs: 'Chưa có vị trí tuyển nào. Bấm “+ Vị trí mới” để đăng tin.', noApps: 'Chưa có hồ sơ ứng tuyển.', pvDownT: 'Chưa hiển thị được trang xem trước', pvDownD: 'Không kết nối được tới website. Thay đổi của bạn vẫn được lưu nháp trên máy này. Đang tự thử lại…', retryNow: 'Thử lại ngay', offlineBar: 'Mất kết nối với máy chủ. Bạn vẫn sửa được, thay đổi được lưu nháp trên máy này và đăng được khi có kết nối lại. Đang thử lại…', offlineShort: 'Đang mất kết nối, chưa đăng được', offlineLogin: 'Không kết nối được máy chủ. Đang tự thử lại…', forgotQ: 'Quên mật khẩu?', forgotNote: 'Hãy nhờ chủ nhà hàng đặt lại mật khẩu cho bạn (Cài đặt → Thành viên & quyền).', loginPhoto: 'Đăng tin, sửa website và nhận đặt bàn ở cùng một nơi.', forgot: 'Quên mật khẩu? Hỏi chủ nhà hàng để đặt lại.',
+    signIn: 'Đăng nhập', user: 'Email', pass: 'Mật khẩu', loginTitle: 'Đăng nhập', loginSub: 'Trang quản trị dành cho nhân viên MUGI.', pwShow: 'Hiện', pwHide: 'Ẩn', siteLive: 'Website', siteLiveD: 'Trang khách đang xem.', siteOnline: 'Đang hoạt động', lastUpdate: 'Cập nhật lần cuối', neverPub: 'Chưa đăng lần nào từ trang quản trị', traffic: 'Lượt truy cập', trafficD: 'Dữ liệu mẫu. Số thật hiện khi Umami được kết nối (xem README).', trafficLive: 'Số liệu thật từ Umami.', trafficErr: 'Không đọc được số liệu từ Umami lúc này; đang hiện dữ liệu mẫu.', days: 'ngày', visitorsL: 'Khách truy cập', viewsL: 'Lượt xem trang', clicksL: 'Bấm “Đặt bàn”', rateL: 'Tỉ lệ bấm đặt bàn', perDay: 'Khách truy cập mỗi ngày', visitorsUnit: 'khách', todaySoFar: 'hôm nay, đến giờ', topPages: 'Trang xem nhiều nhất', sources: 'Khách đến từ', devices: 'Thiết bị', direct: 'Trực tiếp', other: 'Khác', noPosts: 'Chưa có bài viết nào. Bấm “+ Bài mới” để viết bài đầu tiên.', noMatch: 'Không có bài nào ở mục này.', noJobs: 'Chưa có vị trí tuyển nào. Bấm “+ Vị trí mới” để đăng tin.', noApps: 'Chưa có hồ sơ ứng tuyển.', pvDownT: 'Chưa hiển thị được trang xem trước', pvDownD: 'Không kết nối được tới website. Thay đổi của bạn vẫn được lưu nháp trên máy này. Đang tự thử lại…', retryNow: 'Thử lại ngay', offlineBar: 'Mất kết nối với máy chủ. Bạn vẫn sửa được, thay đổi được lưu nháp trên máy này và đăng được khi có kết nối lại. Đang thử lại…', offlineShort: 'Đang mất kết nối, chưa đăng được', offlineLogin: 'Không kết nối được máy chủ. Đang tự thử lại…', forgotQ: 'Quên mật khẩu?', forgotNote: 'Hãy nhờ chủ nhà hàng gửi link đặt lại mật khẩu (Cài đặt → Thành viên & quyền).', loginPhoto: 'Đăng tin, sửa website và nhận đặt bàn ở cùng một nơi.', forgot: 'Quên mật khẩu? Hỏi chủ nhà hàng để đặt lại.',
     loginDemo: 'Chế độ thử: chưa kết nối máy chủ, thay đổi chỉ lưu trên trình duyệt này.', loginLive: 'Đã kết nối. Mỗi lần đăng được lưu thành một phiên bản của website.',
     viewAs: 'Xem với vai trò', owner: 'Chủ / Quản lý', branchStaff: 'Nhân viên chi nhánh', logout: 'Đăng xuất', proto: 'Bản mẫu', display: 'Hiển thị',
     modeLive: 'Đang kết nối', modeDemo: 'Chế độ thử',
@@ -665,6 +674,10 @@ const T = {
     time: 'Giờ', guest: 'Khách', ppl: 'Số khách', branch: 'Chi nhánh', status: 'Trạng thái',
     confirm: 'Xác nhận', cancel: 'Huỷ', noshow: 'Không đến', call: 'Gọi', zalo: 'Zalo', sms: 'SMS',
     noBookings: 'Không có đặt bàn nào cho bộ lọc này.', request: 'Yêu cầu đặc biệt', none: 'Không có', confirmVia: 'Khách muốn xác nhận qua', via_call: 'Gọi điện', via_sms: 'Tin nhắn SMS', via_zalo: 'Zalo',
+    setupNote: 'Lần đăng nhập đầu tiên: dùng email của bạn và mật khẩu chung (ADMIN_PASSWORD). Tài khoản này sẽ là chủ nhà hàng.', firstOwner: 'Đã tạo tài khoản chủ nhà hàng. Hãy đổi mật khẩu trong Cài đặt → Tài khoản.', linkTitle: 'Gửi link này cho {name}', linkD: 'Link dùng một lần, hết hạn sau 7 ngày. Gửi qua Zalo hoặc tin nhắn; người nhận mở link để đặt mật khẩu.', copyLink: 'Sao chép link', copied: 'Đã sao chép', newLink: 'Tạo link đặt mật khẩu', newLinkD: 'Dùng khi người này quên mật khẩu hoặc chưa nhận được link.', inviteTitle: 'Đặt mật khẩu', inviteSub: 'Chào {name}, đặt mật khẩu để bắt đầu dùng trang quản trị MUGI.', inviteSave: 'Lưu và đăng nhập',
+    appsSoon: 'Chưa có form ứng tuyển online. Ứng viên đang liên hệ qua điện thoại hoặc Zalo, theo cách bạn chọn ở mỗi vị trí.',
+    trafficOff: 'Chưa kết nối Umami nên chưa có số liệu. Thêm UMAMI_API_KEY và UMAMI_WEBSITE_ID trên Netlify để xem lượt truy cập thật.',
+    appsNone: 'Chưa có hồ sơ mới. Ứng viên liên hệ qua điện thoại hoặc Zalo cho đến khi có form ứng tuyển online.',
     received: 'Nhận qua website', minsAgo: 'phút trước', hoursAgo: 'giờ trước', history: 'Lịch sử',
     notNotified: 'Chưa báo được cho chi nhánh', newBooking: 'Đặt bàn mới', newBookings: 'đặt bàn mới', recent24: 'Đặt mới trong 24 giờ', fromSite: 'từ website, đã tự xác nhận', latest: 'Đặt bàn mới nhận', notifyOn: 'Bật thông báo trên máy này', notifyOnD: 'Báo khi có đặt bàn mới, kể cả khi đang mở tab khác.', bookingNoteLive: 'Form đặt bàn trên website dùng các quy tắc này. Đặt bàn online được xác nhận ngay và email được gửi tới chi nhánh.', savedSet: 'Đã lưu', guestMsgSoon: 'Chưa hoạt động: cần kết nối dịch vụ gửi SMS/Zalo.',
     bookingN: 'Đặt bàn', date: 'Ngày', phone: 'Điện thoại', notifiedBy: 'Đã gửi email cho chi nhánh',
@@ -680,7 +693,7 @@ const T = {
     livePrev: 'Xem trước', onlyYou: 'Chỉ bạn thấy, chưa đăng', published: 'Đã đăng lên website', draftSaved: 'Đã lưu nháp trên máy này', hiddenT: 'Đã ẩn khỏi website', deleted: 'Đã xoá',
     needTitle: 'Cần có tiêu đề tiếng Việt trước khi đăng.', titlePh: 'Tiêu đề bài viết', bodyPh: 'Nội dung bài viết…',
     openings: 'Vị trí tuyển', apps: 'Hồ sơ ứng tuyển', newJob: 'Vị trí mới', position: 'Vị trí', jobType: 'Hình thức', full: 'Toàn thời gian', part: 'Bán thời gian',
-    howApply: 'Cách ứng tuyển', a_form: 'Điền form trên website', a_phone: 'Gọi điện cho chi nhánh', a_zalo: 'Nhắn Zalo',
+    howApply: 'Cách ứng tuyển', a_form: 'Form trên website (sắp có; tạm hiện số liên hệ)', a_phone: 'Gọi điện cho chi nhánh', a_zalo: 'Nhắn Zalo',
     careersSub: 'Đăng tin tuyển dụng và xem hồ sơ ứng tuyển.', appliedFor: 'Ứng tuyển', newTag: 'Mới', jobDesc: 'Mô tả công việc', applicant: 'Người ứng tuyển', received2: 'Ngày gửi',
     staffSub: 'Ai được đăng nhập và được làm gì.', addStaff: 'Thêm nhân viên', lastSeen: 'Lần cuối', role: 'Vai trò', daysAgo: 'ngày trước', online: 'Hôm nay', person: 'Nhân viên',
     ownerCan: 'Toàn quyền: website, tin tức, tuyển dụng, đặt bàn, tài khoản', staffCan: 'Chỉ đặt bàn của chi nhánh mình',
@@ -747,7 +760,7 @@ const T = {
     suErrName: 'Enter your name.', suErrEmail: 'That email doesn’t look right.', suErrPw: 'The password needs at least 8 characters.', suErrTaken: 'This email already has an account or is waiting for approval.',
     pendingApproval: 'Your account is waiting for the owner’s approval.', protoStore: 'Prototype: members and settings are kept in this browser until there is a database.',
     admin: 'Admin', overview: 'Overview', reservations: 'Reservations', site: 'Website', news: 'News & Offers', careers: 'Careers', staff: 'Staff accounts',
-    signIn: 'Sign in', user: 'Email', pass: 'Password', loginTitle: 'Sign in', loginSub: 'The admin page for MUGI staff.', pwShow: 'Show', pwHide: 'Hide', siteLive: 'Website', siteLiveD: 'The site your guests see.', siteOnline: 'Online', lastUpdate: 'Last updated', neverPub: 'Not yet published from the admin', traffic: 'Visitors', trafficD: 'Sample data. Real numbers appear once Umami is connected (see README).', trafficLive: 'Real numbers from Umami.', trafficErr: 'Couldn’t read Umami right now; showing sample data.', days: 'days', visitorsL: 'Visitors', viewsL: 'Page views', clicksL: '“Reserve” clicks', rateL: 'Reserve click rate', perDay: 'Visitors per day', visitorsUnit: 'visitors', todaySoFar: 'today so far', topPages: 'Top pages', sources: 'Where visitors come from', devices: 'Devices', direct: 'Direct', other: 'Other', noPosts: 'No posts yet. Press “+ New post” to write the first one.', noMatch: 'No posts in this group.', noJobs: 'No openings yet. Press “+ New opening” to post one.', noApps: 'No applications yet.', pvDownT: 'The preview can’t load right now', pvDownD: 'The website can’t be reached. Your changes are kept as a draft on this device. Retrying automatically…', retryNow: 'Try again now', offlineBar: 'Lost connection to the server. You can keep editing; changes are kept as a draft on this device and can be published once the connection is back. Retrying…', offlineShort: 'Offline, can’t publish yet', offlineLogin: 'Can’t reach the server. Retrying automatically…', forgotQ: 'Forgot password?', forgotNote: 'Ask the owner to reset your password (Settings → Members & access).', loginPhoto: 'Post news, edit the website and take bookings in one place.', forgot: 'Forgot your password? Ask the owner to reset it.',
+    signIn: 'Sign in', user: 'Email', pass: 'Password', loginTitle: 'Sign in', loginSub: 'The admin page for MUGI staff.', pwShow: 'Show', pwHide: 'Hide', siteLive: 'Website', siteLiveD: 'The site your guests see.', siteOnline: 'Online', lastUpdate: 'Last updated', neverPub: 'Not yet published from the admin', traffic: 'Visitors', trafficD: 'Sample data. Real numbers appear once Umami is connected (see README).', trafficLive: 'Real numbers from Umami.', trafficErr: 'Couldn’t read Umami right now; showing sample data.', days: 'days', visitorsL: 'Visitors', viewsL: 'Page views', clicksL: '“Reserve” clicks', rateL: 'Reserve click rate', perDay: 'Visitors per day', visitorsUnit: 'visitors', todaySoFar: 'today so far', topPages: 'Top pages', sources: 'Where visitors come from', devices: 'Devices', direct: 'Direct', other: 'Other', noPosts: 'No posts yet. Press “+ New post” to write the first one.', noMatch: 'No posts in this group.', noJobs: 'No openings yet. Press “+ New opening” to post one.', noApps: 'No applications yet.', pvDownT: 'The preview can’t load right now', pvDownD: 'The website can’t be reached. Your changes are kept as a draft on this device. Retrying automatically…', retryNow: 'Try again now', offlineBar: 'Lost connection to the server. You can keep editing; changes are kept as a draft on this device and can be published once the connection is back. Retrying…', offlineShort: 'Offline, can’t publish yet', offlineLogin: 'Can’t reach the server. Retrying automatically…', forgotQ: 'Forgot password?', forgotNote: 'Ask the owner for a new set-password link (Settings → Members & access).', loginPhoto: 'Post news, edit the website and take bookings in one place.', forgot: 'Forgot your password? Ask the owner to reset it.',
     loginDemo: 'Demo mode: no server connected, changes stay in this browser.', loginLive: 'Connected. Every publish is saved as a version of the website.',
     viewAs: 'View as', owner: 'Owner / manager', branchStaff: 'Branch staff', logout: 'Sign out', proto: 'Prototype', display: 'Display',
     modeLive: 'Connected', modeDemo: 'Demo mode',
@@ -761,6 +774,10 @@ const T = {
     time: 'Time', guest: 'Guest', ppl: 'Guests', branch: 'Branch', status: 'Status',
     confirm: 'Confirm', cancel: 'Cancel', noshow: 'No-show', call: 'Call', zalo: 'Zalo', sms: 'SMS',
     noBookings: 'No bookings for this filter.', request: 'Special request', none: 'None', confirmVia: 'Guest wants confirmation by', via_call: 'Phone call', via_sms: 'Text message', via_zalo: 'Zalo',
+    setupNote: 'First sign-in: use your email and the shared password (ADMIN_PASSWORD). This account becomes the owner.', firstOwner: 'Owner account created. Change your password in Settings → Account.', linkTitle: 'Send this link to {name}', linkD: 'One-time link, valid for 7 days. Send it by Zalo or text; they open it to set their password.', copyLink: 'Copy link', copied: 'Copied', newLink: 'Make a set-password link', newLinkD: 'For when they forgot their password or never got the link.', inviteTitle: 'Set your password', inviteSub: 'Hi {name}, set a password to start using the MUGI admin.', inviteSave: 'Save and sign in',
+    appsSoon: 'There’s no online application form yet. Applicants contact you by phone or Zalo, as set on each opening.',
+    trafficOff: 'Umami isn’t connected, so there are no numbers yet. Add UMAMI_API_KEY and UMAMI_WEBSITE_ID on Netlify to see real visits.',
+    appsNone: 'No new applications. Applicants call or message on Zalo until the online form is ready.',
     received: 'Received via website', minsAgo: 'min ago', hoursAgo: 'h ago', history: 'History',
     notNotified: 'Branch not notified', newBooking: 'New booking', newBookings: 'new bookings', recent24: 'New in the last 24 hours', fromSite: 'from the website, confirmed automatically', latest: 'Latest bookings', notifyOn: 'Turn on alerts on this device', notifyOnD: 'Get an alert for each new booking, even when another tab is open.', bookingNoteLive: 'The website’s booking form uses these rules. Online bookings are confirmed straight away and the branch gets an email.', savedSet: 'Saved', guestMsgSoon: 'Not active yet: needs an SMS/Zalo sending service.',
     bookingN: 'Booking', date: 'Date', phone: 'Phone', notifiedBy: 'Branch notified by email',
@@ -776,7 +793,7 @@ const T = {
     livePrev: 'Preview', onlyYou: 'Only you can see this, not published', published: 'Published to the website', draftSaved: 'Draft saved on this device', hiddenT: 'Hidden from the website', deleted: 'Deleted',
     needTitle: 'Add a Vietnamese title before publishing.', titlePh: 'Post title', bodyPh: 'Post text…',
     openings: 'Openings', apps: 'Applications', newJob: 'New opening', position: 'Position', jobType: 'Type', full: 'Full-time', part: 'Part-time',
-    howApply: 'How to apply', a_form: 'Form on the website', a_phone: 'Call the branch', a_zalo: 'Message on Zalo',
+    howApply: 'How to apply', a_form: 'Website form (coming; shows contact numbers for now)', a_phone: 'Call the branch', a_zalo: 'Message on Zalo',
     careersSub: 'Post job openings and see who applied.', appliedFor: 'Applied for', newTag: 'New', jobDesc: 'Job description', applicant: 'Applicant', received2: 'Received',
     staffSub: 'Who can sign in and what they can do.', addStaff: 'Add staff', lastSeen: 'Last seen', role: 'Role', daysAgo: 'days ago', online: 'Today', person: 'Person',
     ownerCan: 'Everything: website, news, jobs, reservations, accounts', staffCan: 'Reservations for their branch only',
@@ -903,14 +920,31 @@ const ROLE_PERMS = {
 };
 let users = store.get('mugi_users', null) || DEFAULT_USERS.map(u => ({ id: u.email, ...u, status: 'active', perms: { ...ROLE_PERMS[u.role] } }));
 const saveUsers = () => store.set('mugi_users', users);
-const signups = () => store.get('mugi_signups', []);
+const signups = () => accountsOn() ? (S.pendingSignups || []) : store.get('mugi_signups', []);
+// With the database, everyone signs in with their own account and the server
+// decides what they may do; without it (demo) this browser keeps members.
+const accountsOn = () => dbOn();
+const canDo = k => S.me?.perms ? !!S.me.perms[k] : (isStaff() ? k === 'res' : true);
+function applyMe(me) {
+  S.me = { ...S.me, ...me };
+  S.role = me.role || 'owner';
+  if (me.branch && !['all', 'office'].includes(me.branch)) S.staffBranch = me.branch;
+  store.set('mugi_me', S.me);
+}
+const inviteUrl = tok => `${location.origin}${location.pathname}#invite=${tok}`;
+async function loadMembers() {
+  if (!accountsOn() || !canDo('members')) return;
+  const list = await API.call('GET', 'staff');
+  users = list.filter(u => u.status !== 'pending');
+  S.pendingSignups = list.filter(u => u.status === 'pending').map(u => ({ id: u.id, name: u.name, email: u.email, branch: u.branch, date: (u.createdAt || '').slice(0, 10) }));
+}
 const DEFAULT_SETTINGS = {
-  allowSignup: true, domain: 'mugi.vn',
+  allowSignup: true, domain: 'mugiramen.netlify.app',
   booking: { maxOnline: 10, daysAhead: 30, lastLunch: '13:30', lastDinner: '21:00', closed: [], autoText: true, remind: false },
   notify: {
-    'mon-city': { email: 'moncity@mugi.vn', zalo: '0966 75 0202' },
-    'golden-palace': { email: 'goldenpalace@mugi.vn', zalo: '0866 60 7560' },
-    'phan-chu-trinh': { email: 'phanchutrinh@mugi.vn', zalo: '0866 75 3375' },
+    'mon-city': { email: '', zalo: '0966 75 0202' },
+    'golden-palace': { email: '', zalo: '0866 60 7560' },
+    'phan-chu-trinh': { email: '', zalo: '0866 75 3375' },
   },
   mine: { phone: '', nBooking: true, nApps: true, nExpiring: true, byEmail: true, byZalo: false },
 };
@@ -939,10 +973,18 @@ async function boot() {
   try { S.server = await API.call('GET', 'status'); S.offline = false; S.loginErr = ''; } catch { S.server = null; }
   S.token = sessionStorage.getItem('mugi_token');
   S.serverExpected = !!S.server || !!S.token;
+  // a set-password link from an owner: #invite=<token>
+  const inviteTok = (location.hash.match(/^#invite=([\w-]+)/) || [])[1];
+  if (inviteTok && S.server) {
+    S.authView = 'invite'; S.invite = { token: inviteTok };
+    try { Object.assign(S.invite, await API.call('GET', 'invite?token=' + inviteTok)); } catch (e) { S.invite.error = e.message; }
+    render(); watchServer(); return;
+  }
+  if (S.server && !S.token) S.setup = await API.call('GET', 'setup').catch(() => null);
   // signed in before but the server is unreachable: wait for it rather than falling back to demo mode
   if (S.token && !S.server) { S.offline = true; S.loginErr = t('offlineLogin'); render(); watchServer(); return; }
   if (S.token && S.server) {
-    try { S.content = await API.call('GET', 'content'); S.authed = true; S.me = store.get('mugi_me', S.me); } catch { S.token = null; }
+    try { S.content = await API.call('GET', 'content'); S.authed = true; S.me = store.get('mugi_me', S.me); applyMe(await API.call('GET', 'me')); } catch { S.token = null; S.authed = false; }
   }
   if (S.authed) afterLogin(); else render();
   watchServer();
@@ -956,12 +998,13 @@ async function login(email, password) {
       const r = await API.call('POST', 'login', { email, password });
       S.token = r.token; sessionStorage.setItem('mugi_token', r.token);
       S.content = await API.call('GET', 'content');
+      if (r.me) applyMe(r.me);
+      S.firstOwner = !!r.firstOwner;
     } else {
       S.content = await fetch('site/content/site.json', { cache: 'no-cache' }).then(r => r.json());
     }
   } catch (e) { S.loginErr = e.message || 'Error'; render(); return; }
-  S.me = { name: email.split('@')[0].replace(/^./, c => c.toUpperCase()), email };
-  store.set('mugi_me', S.me);
+  if (!S.me?.perms) { S.me = { name: email.split('@')[0].replace(/^./, c => c.toUpperCase()), email }; store.set('mugi_me', S.me); }
   S.authed = true;
   afterLogin();
 }
@@ -1010,15 +1053,15 @@ async function setBookingStatus(b, status) {
 // Booking rules and branch contacts live on the server once it has a database.
 async function loadServerSettings() {
   if (!API.live()) return;
-  try { const s = await API.call('GET', 'settings'); settings.booking = { ...settings.booking, ...s.booking }; settings.notify = s.notify; } catch {}
+  try { const s = await API.call('GET', 'settings'); settings.booking = { ...settings.booking, ...s.booking }; settings.notify = s.notify; settings.allowSignup = s.access.allowSignup; } catch {}
 }
 function saveServerSettings() {
   if (!dbOn()) return;
   clearTimeout(settingsTimer);
   settingsTimer = setTimeout(async () => {
     try {
-      const s = await API.call('POST', 'settings', { booking: settings.booking, notify: settings.notify });
-      settings.booking = { ...settings.booking, ...s.booking }; settings.notify = s.notify;
+      const s = await API.call('POST', 'settings', { booking: settings.booking, notify: settings.notify, access: { allowSignup: settings.allowSignup } });
+      settings.booking = { ...settings.booking, ...s.booking }; settings.notify = s.notify; settings.allowSignup = s.access.allowSignup;
       toast(t('savedSet'));
     } catch (e) { toast(e.errors ? e.errors.join(' · ') : e.message); }
   }, 800);
@@ -1030,7 +1073,11 @@ function afterLogin() {
   S.draft = saved && saved.base === hashOf(S.content) ? saved.draft : clone(S.content);
   S.view = isStaff() ? 'reservations' : 'overview';
   bookings = dbOn() ? [] : clone(SAMPLE_BOOKINGS);
+  applications = dbOn() ? [] : clone(SAMPLE_APPS);
+  if (accountsOn()) { users = []; S.pendingSignups = []; }
   render();
+  if (S.firstOwner) { S.firstOwner = false; toast(t('firstOwner')); }
+  loadMembers().then(() => document.getElementById('nav') && (document.getElementById('nav').innerHTML = vNav())).catch(() => {});
   loadServerSettings().then(() => loadBookings()).then(() => { if (S.authed) { render(); watchBookings(); } }).catch(e => toast(e.message));
 }
 const hashOf = c => { const s = JSON.stringify({ ...c, news: 0, jobs: 0 }); let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return h; };
@@ -1113,20 +1160,50 @@ function vLogin() {
         <div class="lbrand" aria-hidden="true"><img src="site/assets/mugi-icon.svg" alt=""><b>MUGI</b></div>
         <h1>${t('loginTitle')}</h1>
         <p class="sub">${t('loginSub')}</p>
-        <div class="field"><label for="u">${t('user')}</label><input id="u" type="email" autocomplete="username" value="${esc(S.loginEmail ?? 'linh@mugi.vn')}" required></div>
+        <div class="field"><label for="u">${t('user')}</label><input id="u" type="email" autocomplete="username" value="${esc(S.loginEmail ?? (API.live() ? '' : 'linh@mugi.vn'))}" required></div>
         <div class="field pw"><div class="lrow"><label for="p">${t('pass')}</label><button type="button" class="lforgot" data-act="forgot" aria-expanded="${!!S.loginNote}" aria-controls="l-note">${t('forgotQ')}</button></div><input id="p" type="password" autocomplete="current-password" ${S.server?.passwordRequired ? '' : 'value="mugi"'}><button type="button" data-act="pw" aria-controls="p" aria-pressed="false">${t('pwShow')}</button></div>
         ${S.loginNote ? `<p class="lnote" id="l-note" role="status">${t('forgotNote')}</p>` : ''}
+        ${S.setup?.needsOwner ? `<p class="lnote" role="note">${t('setupNote')}</p>` : ''}
         ${S.loginErr ? `<p class="err" role="alert">${esc(S.loginErr)}</p>` : ''}
         <button class="cta red" type="submit">${t('signIn')}</button>
         <p class="lalt">${t('noAccount')} <button type="button" class="linkbtn" data-act="authView" data-v="signup">${t('signUp')}</button></p>
       </form>`, '管理');
 }
 
+// Opened from an owner's one-time link: set a password, then you're signed in.
+function vInvite() {
+  const v = S.invite;
+  const body = v.error
+    ? `<div class="ldone"><h1>${t('inviteTitle')}</h1><p class="sub">${esc(v.error)}</p><button class="cta" data-act="authView" data-v="login">${t('backSignIn')}</button></div>`
+    : `<form id="invite" novalidate>
+        <div class="lbrand" aria-hidden="true"><img src="site/assets/mugi-icon.svg" alt=""><b>MUGI</b></div>
+        <h1>${t('inviteTitle')}</h1>
+        <p class="sub">${esc(t('inviteSub').replace('{name}', v.name || ''))}</p>
+        <div class="field"><label for="iv-e">${t('user')}</label><input id="iv-e" type="email" autocomplete="username" value="${esc(v.email || '')}" readonly></div>
+        <div class="field pw"><label for="iv-p">${t('newPw')} <span class="fhint">· ${t('pwHint')}</span></label><input id="iv-p" type="password" autocomplete="new-password" minlength="8" required><button type="button" data-act="pw" aria-controls="iv-p" aria-pressed="false">${t('pwShow')}</button></div>
+        ${S.loginErr ? `<p class="err" role="alert">${esc(S.loginErr)}</p>` : ''}
+        <button class="cta red" type="submit">${t('inviteSave')}</button>
+      </form>`;
+  return authShell(body, '登録');
+}
+async function acceptInvite(pw) {
+  S.loginErr = '';
+  try {
+    const r = await API.call('POST', 'invite', { token: S.invite.token, password: pw });
+    history.replaceState(null, '', location.pathname + location.search);
+    S.token = r.token; sessionStorage.setItem('mugi_token', r.token);
+    applyMe(r.me);
+    S.content = await API.call('GET', 'content');
+    S.authed = true; S.authView = 'login'; S.invite = null;
+    afterLogin();
+  } catch (e) { S.loginErr = e.message; render(); }
+}
+
 function vSignup() {
   const f = S.suForm;
   const body = S.authView === 'signupDone'
     ? `<div class="ldone" role="status"><span class="mark" aria-hidden="true">✓</span><h1>${t('suDone')}</h1><p class="sub">${esc(t('suDoneD')).replace('{email}', `<b>${esc(f.email)}</b>`)}</p><button class="cta" data-act="authView" data-v="login">${t('backSignIn')}</button></div>`
-    : !settings.allowSignup
+    : !settings.allowSignup && !accountsOn()
     ? `<div class="ldone"><h1>${t('signUp')}</h1><p class="sub">${t('suOff')}</p><button class="cta" data-act="authView" data-v="login">${t('backSignIn')}</button></div>`
     : `<form id="signup" novalidate>
         <div class="lbrand" aria-hidden="true"><img src="site/assets/mugi-icon.svg" alt=""><b>MUGI</b></div>
@@ -1142,9 +1219,16 @@ function vSignup() {
       </form>`;
   return authShell(body, '登録');
 }
-function submitSignup() {
+async function submitSignup() {
   const f = S.suForm = { name: document.getElementById('su-n').value.trim(), email: document.getElementById('su-e').value.trim(), branch: document.getElementById('su-b').value };
   const pw = document.getElementById('su-p').value;
+  if (accountsOn()) {
+    S.suErr = !f.name ? t('suErrName') : !EMAIL_RE.test(f.email) ? t('suErrEmail') : pw.length < 8 ? t('suErrPw') : '';
+    if (!S.suErr) try { await API.call('POST', 'signup', { ...f, password: pw }); S.authView = 'signupDone'; } catch (e) { S.suErr = esc(e.message); }
+    render();
+    if (S.suErr) document.querySelector('#signup .err')?.focus?.();
+    return;
+  }
   const taken = [...users, ...signups()].some(u => u.email.toLowerCase() === f.email.toLowerCase());
   S.suErr = !f.name ? t('suErrName') : !EMAIL_RE.test(f.email) ? t('suErrEmail') : pw.length < 8 ? t('suErrPw') : taken ? t('suErrTaken') : '';
   if (!S.suErr) {
@@ -1160,11 +1244,10 @@ function vNav() {
   const nNew = dbOn() ? (S.view === 'reservations' ? 0 : myBookings().filter(b => b.created && b.created > seen).length) : myBookings().filter(b => b.status === 'new').length;
   const nApps = applications.filter(a => !a.seen).length;
   const nSite = draftCount();
-  const nSignups = isStaff() ? 0 : signups().length;
-  const items = isStaff()
-    ? [['reservations', '02', nNew]]
-    : [['overview', '01'], ['reservations', '02', nNew], ['news', '03'], ['careers', '04', nApps], ['site', '05', nSite, 'gold'], ['settings', '06', nSignups]];
-  const who = isStaff() ? (users.find(u => u.branch === S.staffBranch) || users[2]).name : S.me.name;
+  const nSignups = canDo('members') ? signups().length : 0;
+  const items = [!isStaff() && ['overview', '01'], canDo('res') && ['reservations', '02', nNew], canDo('news') && ['news', '03'], canDo('careers') && ['careers', '04', nApps],
+    canDo('site') && ['site', '05', nSite, 'gold'], (!isStaff() || accountsOn()) && ['settings', '06', canDo('members') ? nSignups : 0]].filter(Boolean);
+  const who = isStaff() && !accountsOn() ? (users.find(u => u.branch === S.staffBranch) || users[2]).name : S.me.name;
   return `<div class="brand"><img src="site/assets/mugi-icon.svg" alt=""><div><b>MUGI</b><small>${t('admin')}</small></div></div>
     <nav class="snav" aria-label="${t('admin')}">${items.map(([k, n, c, cls]) =>
       `<button data-act="go" data-v="${k}" class="${S.view === k ? 'on' : ''}" ${S.view === k ? 'aria-current="page"' : ''}><span><span class="k">${n}</span>${t(k)}</span>${c ? `<span class="badge ${cls || ''}">${c}</span>` : ''}</button>`).join('')}
@@ -1213,7 +1296,7 @@ function vOverview() {
         ${drafts.map(([k, p]) => `<div class="mini"><span class="st draft">${t('p_draft')}</span><div>${esc(p.title.vi) || '—'}<small>${t(k)}</small></div><div class="rowacts"><button data-act="${k === 'news' ? 'editPost' : 'editJob'}" data-id="${p.id}">${t('edit')}</button></div></div>`).join('')}
       </div>` : ''}
       <div class="blk"><h2>${t('newApps')} <button data-act="go" data-v="careers" data-tab="apps">${t('seeAll')} →</button></h2>
-        ${applications.filter(a => !a.seen).map(a => `<div class="mini"><span class="av">${esc(a.name.split(' ').pop()[0])}</span><div>${esc(a.name)}<small>${esc(a.job)}</small></div><span class="muted num-t" style="font-size:12px">${fmtShort(a.date)}</span></div>`).join('')}
+        ${applications.some(a => !a.seen) ? applications.filter(a => !a.seen).map(a => `<div class="mini"><span class="av">${esc(a.name.split(' ').pop()[0])}</span><div>${esc(a.name)}<small>${esc(a.job)}</small></div><span class="muted num-t" style="font-size:12px">${fmtShort(a.date)}</span></div>`).join('') : `<p class="muted">${t(dbOn() ? 'appsNone' : 'nothing')}</p>`}
       </div>
     </div>
   </div></div>`;
@@ -1419,7 +1502,7 @@ function vCareers() {
           <div class="c-j">${esc(a.job)}${a.note ? `<br><small>“${esc(a.note)}”</small>` : ''}</div>
           <div class="c-d muted num-t">${fmtShort(a.date)}</div>
           <div><a class="cta ghost sm" href="tel:${a.phone.replace(/\s/g, '')}" data-act="seen" data-i="${i}">${t('call')}</a></div></div>`).join('')}
-        ${applications.length ? '' : `<div class="emptyrow">${t('noApps')}</div>`}
+        ${applications.length ? '' : `<div class="emptyrow">${t(dbOn() ? 'appsSoon' : 'noApps')}</div>`}
       </div>`;
   return `<div class="head"><div><span class="num">04 · 採用</span><h1>${t('careers')}</h1><p class="sub">${t('careersSub')}</p></div>
     <div class="tools"><button class="cta red" data-act="newJob">+ ${t('newJob')}</button></div></div>${tabs}<div class="scroll">${body}</div>`;
@@ -1431,38 +1514,42 @@ const sBlock = (title, desc, body, wide, tools = '') => `<section class="sblock 
 const getSet = k => k.startsWith('me.') ? S.me[k.slice(3)] : k.split('.').reduce((a, x) => a?.[x], settings);
 const sField = (key, label, type = 'text', extra = '') => `<div class="field"><label for="s-${key}">${label}</label><input id="s-${key}" type="${type}" data-set="${key}" value="${esc(getSet(key) ?? '')}" ${extra}></div>`;
 const sCheck = (key, label, hint = '') => `<label class="chk"><input type="checkbox" data-set="${key}" ${getSet(key) ? 'checked' : ''}><span>${label}${hint ? `<small>${hint}</small>` : ''}</span></label>`;
+let meTimer;
 function setSetting(key, v) {
-  if (key.startsWith('me.')) { S.me[key.slice(3)] = v; store.set('mugi_me', S.me); return; }
+  if (key.startsWith('me.')) {
+    S.me[key.slice(3)] = v; store.set('mugi_me', S.me);
+    if (key === 'me.name' && accountsOn() && v.trim()) { clearTimeout(meTimer); meTimer = setTimeout(() => API.call('POST', 'me', { name: v }).then(me => { applyMe(me); toast(t('savedSet')); }).catch(e => toast(e.message)), 800); }
+    return;
+  }
   const p = key.split('.'); let o = settings;
   for (const k of p.slice(0, -1)) o = o[k] ??= {};
   o[p[p.length - 1]] = v;
   store.set('mugi_settings', settings);
-  if (p[0] === 'booking' || p[0] === 'notify') saveServerSettings();
+  if (p[0] === 'booking' || p[0] === 'notify' || p[0] === 'allowSignup') saveServerSettings();
 }
 function vSettings() {
-  const owner = !isStaff();
-  const tabs = [['account', 'set_account'], ...(owner ? [['members', 'set_members'], ['booking', 'set_booking'], ['website', 'set_website']] : [])];
+  const tabs = [['account', 'set_account'], ...(canDo('members') ? [['members', 'set_members'], ['booking', 'set_booking']] : []), ...(!isStaff() ? [['website', 'set_website']] : [])];
   if (!tabs.some(x => x[0] === S.setTab)) S.setTab = 'account';
   const n = signups().length;
   const panel = { account: vSetAccount, members: vSetMembers, booking: vSetBooking, website: vSetWebsite }[S.setTab]();
   return `<div class="head"><div><span class="num">06 · 設定</span><h1>${t('settings')}</h1><p class="sub">${t('settingsSub')}</p></div></div>
   <div class="setwrap">
     <nav class="setnav" aria-label="${t('settings')}">${tabs.map(([k, l]) => `<button data-act="setTab" data-v="${k}" class="${S.setTab === k ? 'on' : ''}" ${S.setTab === k ? 'aria-current="true"' : ''}><span>${t(l)}</span>${k === 'members' && n ? `<span class="badge">${n}</span>` : ''}</button>`).join('')}</nav>
-    <div class="setpanel">${panel}<p class="note" style="margin-top:18px">${t('protoStore')}</p></div>
+    <div class="setpanel">${panel}${accountsOn() ? '' : `<p class="note" style="margin-top:18px">${t('protoStore')}</p>`}</div>
   </div>`;
 }
 function vSetAccount() {
   const a = window.mugiA11y?.get?.() || { size: 0 };
-  return sBlock(t('profile'), t('profileD'), `<div class="row2">${sField('me.name', t('fullName'), 'text', 'autocomplete="name"')}${sField('me.email', t('user'), 'email', 'autocomplete="email"')}</div>${sField('mine.phone', t('phone'), 'tel', 'placeholder="09xx xxx xxx" autocomplete="tel"')}`)
+  return sBlock(t('profile'), t('profileD'), `<div class="row2">${sField('me.name', t('fullName'), 'text', 'autocomplete="name"')}${sField('me.email', t('user'), 'email', accountsOn() ? 'readonly' : 'autocomplete="email"')}</div>${sField('mine.phone', t('phone'), 'tel', 'placeholder="09xx xxx xxx" autocomplete="tel"')}`)
     + sBlock(t('password'), t('passwordD'), `<div class="row2"><div class="field"><label for="s-pw1">${t('curPw')}</label><input id="s-pw1" type="password" autocomplete="current-password"></div><div class="field"><label for="s-pw2">${t('newPw')}</label><input id="s-pw2" type="password" autocomplete="new-password" minlength="8"></div></div><button class="cta ghost sm" data-act="changePw" style="align-self:flex-start">${t('changePw')}</button>`)
     + sBlock(t('langL'), t('langD'), `<div class="seg" role="group" aria-label="${t('langL')}" style="align-self:flex-start">${[['vi', 'Tiếng Việt'], ['en', 'English']].map(([l, n]) => `<button type="button" data-act="lang" data-v="${l}" aria-pressed="${S.lang === l}">${n}</button>`).join('')}</div>`)
     + sBlock(t('display'), t('displayD'), `<div class="fl"><span class="lab">${t('textSize')}</span><div class="seg" role="group" aria-label="${t('textSize')}" style="align-self:flex-start">${[0, 1, 2].map(n => `<button type="button" data-act="a11ySize" data-v="${n}" aria-pressed="${(a.size || 0) === n}" style="font-family:var(--mincho);font-size:${13 + n * 3}px;min-width:48px">A</button>`).join('')}</div></div>
         ${[['contrast', 'a_contrast'], ['font', 'a_font'], ['links', 'a_links'], ['motion', 'a_motion'], ['focus', 'a_focus']].map(([k, l]) => `<label class="chk"><input type="checkbox" data-a11y="${k}" ${a[k] ? 'checked' : ''}><span>${t(l)}</span></label>`).join('')}`)
     + sBlock(t('notifyMe'), t('notifyMeD'), `${isStaff() ? sCheck('mine.nBooking', t('n_booking')) : sCheck('mine.nBooking', t('n_booking')) + sCheck('mine.nApps', t('n_apps')) + sCheck('mine.nExpiring', t('n_expiring'))}<div class="divl"></div>${sCheck('mine.byEmail', t('by_email'))}${sCheck('mine.byZalo', t('by_zalo'))}`)
     + sBlock(t('session'), t('sessionD'), `<button class="cta ghost sm" data-act="logout" style="align-self:flex-start">${t('logout')}</button>`)
-    + sBlock(t('proto'), t('protoD'), `<div class="field"><label for="s-role">${t('viewAs')}</label><select id="s-role" data-act="role">
+    + (accountsOn() ? '' : sBlock(t('proto'), t('protoD'), `<div class="field"><label for="s-role">${t('viewAs')}</label><select id="s-role" data-act="role">
         <option value="owner" ${!isStaff() ? 'selected' : ''}>${t('r_owner')}</option>
-        ${BRANCHES.map(b => `<option value="staff:${b.id}" ${isStaff() && S.staffBranch === b.id ? 'selected' : ''}>${t('r_staff')} · ${b.short}</option>`).join('')}</select></div>`);
+        ${BRANCHES.map(b => `<option value="staff:${b.id}" ${isStaff() && S.staffBranch === b.id ? 'selected' : ''}>${t('r_staff')} · ${b.short}</option>`).join('')}</select></div>`));
 }
 function accessChips(u) {
   return `<div class="chips">${PERMS.filter(k => u.perms?.[k]).map(k => `<span class="chip">${t('p_' + k)}${k === 'res' && u.branch !== 'all' ? ` · ${esc(br(u.branch).short)}` : ''}</span>`).join('')}</div>`;
@@ -1500,6 +1587,7 @@ function vMemberDialog() {
       </div>
       <fieldset class="plain"><legend>${t('role')}</legend><div class="rolecards">${['owner', 'manager', 'staff'].map(r => `<label class="rolecard"><input type="radio" name="m-role" data-mrole="${r}" ${d.role === r ? 'checked' : ''} ${self && r !== 'owner' && users.filter(u => u.role === 'owner').length < 2 ? 'disabled' : ''}><b>${roleName(r)}</b><small>${t('rd_' + r)}</small></label>`).join('')}</div></fieldset>
       ${d.role === 'staff' ? `<div class="field"><label for="m-branch">${t('branchOnly')}</label><select id="m-branch" data-m="branch">${BRANCHES.map(b => `<option value="${b.id}" ${d.branch === b.id ? 'selected' : ''}>${esc(b.short)}</option>`).join('')}</select></div>` : ''}
+      ${accountsOn() && !m.isNew && !self ? `<div class="fl"><span class="lab">${t('newLinkD')}</span><button type="button" class="cta ghost sm" data-act="memberLink" style="align-self:flex-start">${t('newLink')}</button></div>` : ''}
       <fieldset class="plain"><legend>${t('access')}</legend>
         ${PERMS.map(k => `<label class="chk"><input type="checkbox" data-mperm="${k}" ${d.perms[k] ? 'checked' : ''} ${d.role === 'owner' ? 'disabled' : ''}><span>${t('p_' + k)}<small>${t('pd_' + k)}</small></span></label>`).join('')}
       </fieldset>
@@ -1510,9 +1598,19 @@ function vMemberDialog() {
       <button class="cta red sm" data-act="saveMember">${m.isNew ? (m.fromSignup ? t('approveSave') : t('sendInvite')) : t('save')}</button>
     </div></div>`;
 }
-function saveMember() {
+async function saveMember() {
   const m = S.modal, d = m.data;
   d.name = d.name.trim(); d.email = d.email.trim();
+  if (accountsOn()) {
+    try {
+      const r = await API.call('POST', 'staff', { id: m.fromSignup || (m.isNew ? undefined : d.id), name: d.name, email: d.email, role: d.role, branch: d.branch, perms: d.perms, approve: !!m.fromSignup });
+      await loadMembers();
+      render();
+      if (r.invite) { S.modal = { type: 'link', name: d.name, url: inviteUrl(r.invite) }; renderOverlay(); return; }
+      toast(m.fromSignup ? `${t('approvedT')} ${d.name}` : t('saved')); closeModal();
+    } catch (e) { m.errors = [e.message]; renderOverlay(); }
+    return;
+  }
   const errs = [];
   if (!d.name || !EMAIL_RE.test(d.email)) errs.push(t('needNameEmail'));
   if (m.isNew && users.some(u => u.email.toLowerCase() === d.email.toLowerCase())) errs.push(t('emailTaken'));
@@ -1581,8 +1679,9 @@ function vSetWebsite() {
     </figure>`;
   return sBlock(t('siteLive'), t('siteLiveD'), `<div class="livecard">${sv ? stChip('published', t('siteOnline')) : stChip('draft', t('modeDemo'))}<a href="https://${esc(settings.domain)}" target="_blank" rel="noopener">${esc(settings.domain)} ↗</a></div>
         <dl class="sdl"><dt>${t('lastUpdate')}</dt><dd>${lastDate ? esc(new Date(lastDate).toLocaleString(loc(), { dateStyle: 'medium', timeStyle: 'short' })) : lastDate === null ? '…' : t('neverPub')}</dd></dl>
-        ${sField('domain', t('domain'), 'text', 'placeholder="mugi.vn"')}`)
-    + sBlock(t('traffic'), real ? t('trafficLive') : S[key]?.error ? t('trafficErr') : t('trafficD'), `
+        ${sField('domain', t('domain'), 'text', 'placeholder="mugiramen.netlify.app"')}`)
+    + (sv && !real ? sBlock(t('traffic'), S[key]?.error ? t('trafficErr') : '', `<p class="muted" style="margin:0">${S[key] === null ? '…' : esc(S[key]?.error || t('trafficOff'))}</p>`, true)
+    : sBlock(t('traffic'), real ? t('trafficLive') : t('trafficD'), `
         <div class="tiles mtiles">
           <div class="tile"><div class="lbl">${t('visitorsL')}</div><div class="v">${fmtN(visitors)}</div></div>
           <div class="tile"><div class="lbl">${t('viewsL')}</div><div class="v">${fmtN(views)}</div></div>
@@ -1595,7 +1694,7 @@ function vSetWebsite() {
           <div><span class="lab">${t('sources')}</span>${hbars(real ? real.sources.map(([x, v]) => [srcName(x), v]) : [['Google', 41], ['Facebook', 27], [t('direct'), 18], ['Zalo', 9], [t('other'), 5]])}</div>
           <div><span class="lab">${t('devices')}</span>${hbars(real ? real.devices.map(([x, v]) => [devName(x), v]) : [[t('mobile'), 78], [t('desktop'), 19], [t('tablet'), 3]])}</div>
         </div>`, true,
-        `<div class="seg" role="group" aria-label="${t('traffic')}">${[7, 30].map(d => `<button type="button" data-act="statsRange" data-v="${d}" aria-pressed="${n === d}">${d} ${t('days')}</button>`).join('')}</div>`)
+        `<div class="seg" role="group" aria-label="${t('traffic')}">${[7, 30].map(d => `<button type="button" data-act="statsRange" data-v="${d}" aria-pressed="${n === d}">${d} ${t('days')}</button>`).join('')}</div>`))
     + sBlock(t('backup'), t('backupD'), `<button class="cta ghost sm" data-act="dlContent" style="align-self:flex-start">↓ ${t('dlContent')}</button>`);
 }
 
@@ -2045,6 +2144,10 @@ function vModal() {
       : `<button class="cta red sm" data-act="publishSite">${t('publishSite')}</button>`}</div></div>`;
   }
   if (m.type === 'member') return vMemberDialog();
+  if (m.type === 'link') return `<div class="scrim top" data-act="closeModal"></div><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-t">
+    <div class="dh"><h2 id="dlg-t">${esc(t('linkTitle').replace('{name}', m.name))}</h2><button class="x" data-act="closeModal" aria-label="Close">×</button></div>
+    <div class="db"><p class="muted" style="margin:0 0 14px">${t('linkD')}</p><div class="field"><label for="lk-url">Link</label><input id="lk-url" readonly value="${esc(m.url)}" onfocus="this.select()"></div></div>
+    <div class="df"><button class="cta ghost sm" data-act="closeModal">${t('done')}</button><button class="cta red sm" data-act="copyLink">${t('copyLink')}</button></div></div>`;
   if (m.type === 'history') {
     return `<div class="scrim top" data-act="closeModal"></div><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-t">
     <div class="dh"><h2 id="dlg-t">${t('versions')}</h2><button class="x" data-act="closeModal" aria-label="Close">×</button></div>
@@ -2061,7 +2164,7 @@ let lastMain = '', lastPanel = null;
 const FIXED_VIEWS = ['overview', 'reservations', 'news', 'careers', 'settings'];
 function render() {
   document.documentElement.lang = S.lang;
-  if (!S.authed) { app.innerHTML = S.authView === 'login' ? vLogin() : vSignup(); lastMain = ''; return; }
+  if (!S.authed) { app.innerHTML = S.authView === 'login' ? vLogin() : S.authView === 'invite' ? vInvite() : vSignup(); lastMain = ''; return; }
   const isSite = S.view === 'site' && !S.edit && !isStaff();
   const key = isSite ? 'site' : 'other';
   if (!document.getElementById('nav')) app.innerHTML = `<div class="ad"><aside class="side-nav" id="nav"></aside><main class="main" id="main"></main></div><div id="overlay"></div>`;
@@ -2220,15 +2323,32 @@ document.addEventListener('click', async ev => {
     case 'authView': S.authView = v; S.suErr = ''; S.loginErr = ''; if (v === 'signup') S.suForm = {}; break;
     case 'setTab': S.setTab = v; break;
     case 'statsRange': S.statsRange = +v; break;
-    case 'changePw': { const n = document.getElementById('s-pw2').value; toast(n.length < 8 ? t('pwShort') : t('pwChanged')); return; }
+    case 'changePw': {
+      const cur = document.getElementById('s-pw1'), n = document.getElementById('s-pw2');
+      if (n.value.length < 8) { toast(t('pwShort')); return; }
+      if (accountsOn()) {
+        try { const r = await API.call('POST', 'me/password', { current: cur.value, next: n.value }); S.token = r.token; sessionStorage.setItem('mugi_token', r.token); cur.value = n.value = ''; toast(t('pwChanged')); }
+        catch (e) { toast(e.message); }
+        return;
+      }
+      toast(t('pwChanged')); return;
+    }
     case 'a11ySize': { const st = window.mugiA11y.get(); st.size = +v; window.mugiA11y.set(st); break; }
     case 'inviteMember': S.modal = { type: 'member', isNew: true, data: { id: 'u' + Date.now().toString(36), name: '', email: '', role: 'staff', branch: BRANCHES[0].id, perms: { ...ROLE_PERMS.staff }, status: 'invited', last: 0 } }; renderOverlay(); setTimeout(() => document.getElementById('m-name')?.focus(), 60); return;
     case 'editMember': S.modal = { type: 'member', isNew: false, data: clone(users.find(u => u.id === id)) }; renderOverlay(); return;
     case 'approveSignup': { const x = signups().find(y => y.id === id); S.modal = { type: 'member', isNew: true, fromSignup: id, data: { id: 'u' + Date.now().toString(36), name: x.name, email: x.email, role: x.branch === 'office' ? 'manager' : 'staff', branch: x.branch === 'office' ? 'all' : x.branch, perms: { ...ROLE_PERMS[x.branch === 'office' ? 'manager' : 'staff'] }, status: 'active', last: 0 } }; renderOverlay(); return; }
-    case 'declineSignup': store.set('mugi_signups', signups().filter(x => x.id !== id)); toast(t('declined')); break;
+    case 'declineSignup':
+      if (accountsOn()) { try { await API.call('POST', 'staff/remove', { id }); await loadMembers(); toast(t('declined')); } catch (e) { toast(e.message); } break; }
+      store.set('mugi_signups', signups().filter(x => x.id !== id)); toast(t('declined')); break;
     case 'saveMember': saveMember(); return;
     case 'removeMember': S.modal.confirmRemove = true; renderOverlay(); return;
-    case 'doRemoveMember': users = users.filter(u => u.id !== S.modal.data.id); saveUsers(); toast(t('removed2')); closeModal(); return;
+    case 'doRemoveMember':
+      if (accountsOn()) { try { await API.call('POST', 'staff/remove', { id: S.modal.data.id }); await loadMembers(); render(); toast(t('removed2')); closeModal(); } catch (e) { S.modal.errors = [e.message]; renderOverlay(); } return; }
+      users = users.filter(u => u.id !== S.modal.data.id); saveUsers(); toast(t('removed2')); closeModal(); return;
+    case 'memberLink':
+      try { const r = await API.call('POST', 'staff/link', { id: S.modal.data.id }); S.modal = { type: 'link', name: S.modal.data.name, url: inviteUrl(r.invite) }; renderOverlay(); } catch (e) { S.modal.errors = [e.message]; renderOverlay(); }
+      return;
+    case 'copyLink': navigator.clipboard?.writeText(S.modal.url).then(() => toast(t('copied')), () => document.getElementById('lk-url')?.select()); return;
     case 'addClosed': { const d = document.getElementById('s-closed').value; if (d && !settings.booking.closed.includes(d)) { settings.booking.closed.push(d); store.set('mugi_settings', settings); saveServerSettings(); } break; }
     case 'delClosed': settings.booking.closed = settings.booking.closed.filter(d => d !== v); store.set('mugi_settings', settings); saveServerSettings(); break;
     case 'openHistory': S.view = 'site'; render(); setTimeout(() => document.querySelector('[data-act=history]')?.click(), 80); return;
@@ -2335,6 +2455,7 @@ document.addEventListener('click', async ev => {
 });
 document.addEventListener('submit', ev => {
   if (ev.target.id === 'signup') { ev.preventDefault(); submitSignup(); return; }
+  if (ev.target.id === 'invite') { ev.preventDefault(); acceptInvite(document.getElementById('iv-p').value); return; }
   if (ev.target.id === 'login') { ev.preventDefault(); S.loginEmail = document.getElementById('u').value.trim(); login(document.getElementById('u').value.trim(), document.getElementById('p').value); }
 });
 document.addEventListener('change', async ev => {
