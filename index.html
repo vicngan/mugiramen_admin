@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex">
 <title>MUGI Admin</title>
 <link rel="icon" type="image/svg+xml" href="site/assets/mugi-icon.svg">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700&family=Be+Vietnam+Pro:wght@300;400;500;600&family=Noto+Sans+JP:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600&family=Shippori+Mincho:wght@500;700&family=Be+Vietnam+Pro:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500&display=swap">
 <link rel="stylesheet" href="site/assets/washi.css">
 <script src="site/assets/a11y.js" defer></script>
 <style>
@@ -683,7 +683,7 @@ const T = {
     ownerCan: 'Toàn quyền: website, tin tức, tuyển dụng, đặt bàn, tài khoản', staffCan: 'Chỉ đặt bàn của chi nhánh mình',
     invited: 'Bản mẫu: sẽ gửi email mời đăng nhập.', exported: 'Đã tải file Excel (CSV)',
     // website editor
-    siteTitle: 'Trang web', pg_home: 'Trang chủ', pg_about: 'Giới thiệu', pg_menu: 'Thực đơn', pg_promotion: 'Tin tức', pg_careers: 'Tuyển dụng', pg_location: 'Liên hệ',
+    siteTitle: 'Trang web', pg_home: 'Trang chủ', pg_about: 'Về Mugi', pg_menu: 'Thực đơn', pg_promotion: 'Tin tức', pg_careers: 'Tuyển dụng', pg_location: 'Nhà hàng',
     desktop: 'Máy tính', tablet: 'Máy tính bảng', mobile: 'Điện thoại', editMode: 'Bấm để sửa', browseMode: 'Duyệt trang',
     clickHint: 'Bấm vào chữ hoặc ảnh trong khung xem trước để sửa nhanh. Chỉ sửa được nội dung, không thêm hay xoá khối trên trang.',
     vision: 'Mô phỏng', v_none: 'Nhìn bình thường', v_blur: 'Thị lực kém (mờ)', v_protan: 'Mù màu đỏ', v_deutan: 'Mù màu xanh lá', v_tritan: 'Mù màu xanh dương', v_gray: 'Không thấy màu',
@@ -696,7 +696,7 @@ const T = {
     pubStep1: 'Lưu phiên bản mới', pubStep2: 'Website đang cập nhật', pubStep3: 'Đã lên website', pubLocal: 'Đã lưu vào kho mã (git)', pubDemo: 'Chế độ thử: không gửi đi đâu cả',
     pubFail: 'Chưa đăng được', unsaved: 'Đã lưu nháp trên máy này',
     before: 'Trước', after: 'Sau', added: 'Thêm mới', removed: 'Đã xoá', hiddenAt: 'Ẩn tại', price: 'Giá', name: 'Tên',
-    sec_hero: 'Ảnh bìa & tiêu đề', sec_about: 'Giới thiệu ngắn', sec_featured: 'Món nổi bật', sec_space: 'Không gian', sec_rest: 'Nhà hàng', sec_band: 'Khung đặt bàn', sec_story: 'Câu chuyện', sec_head: 'Đầu trang', sec_empty: 'Khi chưa có bài', sec_branches: 'Thông tin chi nhánh', sec_boxes: 'Các ô liên hệ', sec_menu: 'Món ăn & đồ uống', sec_common: 'Chung', sec_other: 'Khác',
+    sec_hero: 'Ảnh bìa & khẩu hiệu', sec_about: 'Giới thiệu ngắn', sec_featured: 'Món nổi bật', sec_space: 'Không gian', sec_rest: 'Nhà hàng', sec_band: 'Khung đặt bàn', sec_story: 'Câu chuyện', sec_head: 'Đầu trang', sec_empty: 'Khi chưa có bài', sec_branches: 'Thông tin chi nhánh', sec_boxes: 'Các ô liên hệ', sec_menu: 'Món ăn & đồ uống', sec_common: 'Chung', sec_other: 'Khác',
     postsLink: 'Bài viết được quản lý ở mục Tin tức & Ưu đãi.', jobsLink: 'Tin tuyển dụng được quản lý ở mục Tuyển dụng.', goThere: 'Mở',
     menuBranch: 'Xem tại chi nhánh', addDish: '+ Thêm món', addItem: '+ Thêm đồ uống', addTopping: '+ Thêm topping', toppingsL: 'Topping thêm',
     nameVi: 'Tên tiếng Việt', nameEn: 'Tên tiếng Anh', nameJp: 'Tên tiếng Nhật', descVi: 'Mô tả (Việt)', descEn: 'Mô tả (Anh)', priceL: 'Giá chung', sizesL: 'Giá theo dung tích',
@@ -706,7 +706,6 @@ const T = {
     br_short: 'Tên hiển thị', br_area: 'Khu vực', br_a1: 'Địa chỉ (dòng 1)', br_a2: 'Địa chỉ (dòng 2)', br_phone: 'Số điện thoại', br_lunch: 'Giờ trưa', br_dinner: 'Giờ tối', br_map: 'Link Google Maps',
     story_k: 'Nhãn nhỏ', story_t: 'Tiêu đề', story_b: 'Nội dung', caption: 'Chú thích', storyN: 'Phần',
     altFromTitle: 'Mô tả ảnh dùng tiêu đề của phần này.', altFromCaption: 'Mô tả ảnh dùng chú thích.', altFromName: 'Mô tả ảnh dùng tên món.',
-    featuredNote: 'Tên và giá lấy từ Thực đơn (Golden Palace). Chỉ đổi ảnh tại đây.',
     pickNone: 'Phần này không sửa được (do lập trình viên quản lý).',
     current: 'Hiện tại', closeChecks: 'Đóng kiểm tra', backEditor: '← Quay lại bài viết',
     v_img: 'thiếu mô tả ảnh (tiếng Việt)', v_name: 'thiếu tên tiếng Việt', v_price: 'thiếu giá',
@@ -778,7 +777,7 @@ const T = {
     staffSub: 'Who can sign in and what they can do.', addStaff: 'Add staff', lastSeen: 'Last seen', role: 'Role', daysAgo: 'days ago', online: 'Today', person: 'Person',
     ownerCan: 'Everything: website, news, jobs, reservations, accounts', staffCan: 'Reservations for their branch only',
     invited: 'Prototype: would send a sign-in invite by email.', exported: 'Excel file (CSV) downloaded',
-    siteTitle: 'Website', pg_home: 'Home', pg_about: 'About', pg_menu: 'Menu', pg_promotion: 'News', pg_careers: 'Careers', pg_location: 'Contact',
+    siteTitle: 'Website', pg_home: 'Home', pg_about: 'About Mugi', pg_menu: 'Menu', pg_promotion: 'News', pg_careers: 'Careers', pg_location: 'Restaurants',
     desktop: 'Desktop', tablet: 'Tablet', mobile: 'Phone', editMode: 'Click to edit', browseMode: 'Browse',
     clickHint: 'Click any text or photo in the preview to jump to it. Only content can be changed; sections can’t be added or removed.',
     vision: 'Simulate', v_none: 'Typical vision', v_blur: 'Low vision (blur)', v_protan: 'Red-blind', v_deutan: 'Green-blind', v_tritan: 'Blue-blind', v_gray: 'No colour',
@@ -791,7 +790,7 @@ const T = {
     pubStep1: 'Save new version', pubStep2: 'Website updating', pubStep3: 'Live on the website', pubLocal: 'Committed to the code repository (git)', pubDemo: 'Demo mode: nothing is sent anywhere',
     pubFail: 'Could not publish', unsaved: 'Draft saved on this device',
     before: 'Before', after: 'After', added: 'Added', removed: 'Removed', hiddenAt: 'Hidden at', price: 'Price', name: 'Name',
-    sec_hero: 'Cover photo & title', sec_about: 'Short introduction', sec_featured: 'Featured dishes', sec_space: 'The space', sec_rest: 'Restaurants', sec_band: 'Reservation band', sec_story: 'Story', sec_head: 'Page header', sec_empty: 'When there are no posts', sec_branches: 'Branch details', sec_boxes: 'Contact boxes', sec_menu: 'Food & drinks', sec_common: 'General', sec_other: 'Other',
+    sec_hero: 'Cover photo & tagline', sec_about: 'Short introduction', sec_featured: 'Featured dishes', sec_space: 'The space', sec_rest: 'Restaurants', sec_band: 'Reservation band', sec_story: 'Story', sec_head: 'Page header', sec_empty: 'When there are no posts', sec_branches: 'Branch details', sec_boxes: 'Contact boxes', sec_menu: 'Food & drinks', sec_common: 'General', sec_other: 'Other',
     postsLink: 'Posts are managed under News & Offers.', jobsLink: 'Job openings are managed under Careers.', goThere: 'Open',
     menuBranch: 'Preview at branch', addDish: '+ Add dish', addItem: '+ Add drink', addTopping: '+ Add topping', toppingsL: 'Toppings',
     nameVi: 'Vietnamese name', nameEn: 'English name', nameJp: 'Japanese name', descVi: 'Description (VI)', descEn: 'Description (EN)', priceL: 'Price', sizesL: 'Prices by size',
@@ -801,7 +800,6 @@ const T = {
     br_short: 'Display name', br_area: 'Area', br_a1: 'Address (line 1)', br_a2: 'Address (line 2)', br_phone: 'Phone', br_lunch: 'Lunch hours', br_dinner: 'Dinner hours', br_map: 'Google Maps link',
     story_k: 'Small label', story_t: 'Title', story_b: 'Text', caption: 'Caption', storyN: 'Part',
     altFromTitle: 'The photo description uses this part’s title.', altFromCaption: 'The photo description uses the caption.', altFromName: 'The photo description uses the dish name.',
-    featuredNote: 'Names and prices come from the Menu (Golden Palace). Only the photos change here.',
     pickNone: 'This part can’t be edited here (managed by the developer).',
     current: 'Current', closeChecks: 'Close check', backEditor: '← Back to the post',
     v_img: 'needs a photo description (Vietnamese)', v_name: 'needs a Vietnamese name', v_price: 'needs a price',
@@ -809,44 +807,47 @@ const T = {
 };
 // Human names for each editable text on the site (content/site.json → text.*)
 const TEXT_LABELS = {
-  vi: { reserve: 'Nút "Đặt bàn"', heroTitle: 'Tiêu đề lớn', heroSub: 'Dòng giới thiệu', capCounter: 'Chú thích ảnh bìa', aboutHeading: 'Tiêu đề', aboutLead: 'Đoạn chính', aboutSide: 'Đoạn phụ', aboutSub: 'Dòng giới thiệu', readStory: 'Liên kết "Đọc thêm"', ourStory: 'Tiêu đề trang', specialsHeading: 'Tiêu đề', seeMenu: 'Liên kết "Xem thực đơn"', fullMenu: 'Liên kết "Thực đơn đầy đủ"', spaceHeading: 'Tiêu đề', restaurantsHeading: 'Tiêu đề', directions: 'Liên kết "Chỉ đường"', bandTitle: 'Tiêu đề', bandBody: 'Nội dung', menuBandTitle: 'Tiêu đề khung đặt bàn', reserveTitle: 'Tiêu đề ô Đặt bàn', findUs: 'Tiêu đề trang', lunch: 'Chữ "Trưa"', dinner: 'Chữ "Tối"', addressLabel: 'Nhãn "Địa chỉ"', phoneLabel: 'Nhãn "Điện thoại"', openInMaps: 'Nút Google Maps', menuHere: 'Nút "Thực đơn cơ sở này"', menuTitle: 'Tiêu đề trang', menuSub: 'Dòng giới thiệu', menuNote: 'Ghi chú cuối trang', restaurantLabel: 'Nhãn "Nhà hàng"', featuredTag: 'Nhãn "Nổi bật"', toppings: 'Tiêu đề "Topping thêm"', navNews: 'Chữ "Tin tức" ở chân trang', promoHeading: 'Tiêu đề trang', newsSub: 'Dòng giới thiệu', newsEmptyTitle: 'Tiêu đề', newsEmpty: 'Nội dung', careersTitle: 'Tiêu đề trang', careersSub: 'Dòng giới thiệu', careersEmptyTitle: 'Tiêu đề', careersEmpty: 'Nội dung', contactTitle: 'Tiêu đề phần Liên hệ', contactSub: 'Dòng giới thiệu', callTitle: 'Tiêu đề ô Gọi điện', callBody: 'Nội dung ô Gọi điện', fbBody: 'Nội dung ô Facebook', footerHours: 'Nhãn "Giờ mở cửa"' },
-  en: { reserve: '"Reserve" button', heroTitle: 'Main title', heroSub: 'Intro line', capCounter: 'Cover photo caption', aboutHeading: 'Heading', aboutLead: 'Main paragraph', aboutSide: 'Side paragraph', aboutSub: 'Intro line', readStory: '"Read more" link', ourStory: 'Page title', specialsHeading: 'Heading', seeMenu: '"See the menu" link', fullMenu: '"Full menu" link', spaceHeading: 'Heading', restaurantsHeading: 'Heading', directions: '"Directions" link', bandTitle: 'Heading', bandBody: 'Text', menuBandTitle: 'Reservation band heading', reserveTitle: 'Reservation box heading', findUs: 'Page title', lunch: '"Lunch" label', dinner: '"Dinner" label', addressLabel: '"Address" label', phoneLabel: '"Phone" label', openInMaps: 'Google Maps button', menuHere: '"Menu for this branch" button', menuTitle: 'Page title', menuSub: 'Intro line', menuNote: 'Note at the bottom', restaurantLabel: '"Restaurant" label', featuredTag: '"Featured" tag', toppings: '"Toppings" heading', navNews: '"News" in footer', promoHeading: 'Page title', newsSub: 'Intro line', newsEmptyTitle: 'Heading', newsEmpty: 'Text', careersTitle: 'Page title', careersSub: 'Intro line', careersEmptyTitle: 'Heading', careersEmpty: 'Text', contactTitle: 'Contact section heading', contactSub: 'Intro line', callTitle: 'Call box heading', callBody: 'Call box text', fbBody: 'Facebook box text', footerHours: '"Hours" label' },
+  vi: { reserve: 'Nút "Đặt bàn"', heroTitle: 'Khẩu hiệu dưới chữ MUGI', heroSub: 'Dòng giới thiệu', capCounter: 'Chú thích ảnh bìa', aboutHeading: 'Tiêu đề', aboutLead: 'Đoạn chính', aboutSide: 'Đoạn phụ', aboutSub: 'Dòng giới thiệu', readStory: 'Liên kết "Đọc thêm"', ourStory: 'Tiêu đề trang', specialsHeading: 'Tiêu đề', seeMenu: 'Liên kết "Xem thực đơn"', fullMenu: 'Liên kết "Thực đơn đầy đủ"', spaceHeading: 'Tiêu đề', restaurantsHeading: 'Tiêu đề', directions: 'Liên kết "Chỉ đường"', bandTitle: 'Tiêu đề', bandBody: 'Nội dung', menuBandTitle: 'Tiêu đề khung đặt bàn', reserveTitle: 'Tiêu đề ô Đặt bàn', findUs: 'Tiêu đề trang', lunch: 'Chữ "Trưa"', dinner: 'Chữ "Tối"', addressLabel: 'Nhãn "Địa chỉ"', phoneLabel: 'Nhãn "Điện thoại"', openInMaps: 'Nút Google Maps', menuHere: 'Nút "Thực đơn cơ sở này"', menuTitle: 'Tiêu đề trang', menuSub: 'Dòng giới thiệu', menuNote: 'Ghi chú cạnh nút nhà hàng', restaurantLabel: 'Nhãn "Nhà hàng"', featuredTag: 'Nhãn "Nổi bật"', toppings: 'Tiêu đề "Topping thêm"', navNews: 'Chữ "Tin tức" ở chân trang', promoHeading: 'Tiêu đề trang', newsSub: 'Dòng giới thiệu', newsEmptyTitle: 'Tiêu đề', newsEmpty: 'Nội dung', careersTitle: 'Tiêu đề trang', careersSub: 'Dòng giới thiệu', careersEmptyTitle: 'Tiêu đề', careersEmpty: 'Nội dung', contactTitle: 'Tiêu đề phần Liên hệ', contactSub: 'Dòng giới thiệu', callTitle: 'Tiêu đề ô Gọi điện', callBody: 'Nội dung ô Gọi điện', fbBody: 'Nội dung ô Facebook', footerHours: 'Nhãn "Giờ mở cửa"' },
+  en: { reserve: '"Reserve" button', heroTitle: 'Tagline under MUGI', heroSub: 'Intro line', capCounter: 'Cover photo caption', aboutHeading: 'Heading', aboutLead: 'Main paragraph', aboutSide: 'Side paragraph', aboutSub: 'Intro line', readStory: '"Read more" link', ourStory: 'Page title', specialsHeading: 'Heading', seeMenu: '"See the menu" link', fullMenu: '"Full menu" link', spaceHeading: 'Heading', restaurantsHeading: 'Heading', directions: '"Directions" link', bandTitle: 'Heading', bandBody: 'Text', menuBandTitle: 'Reservation band heading', reserveTitle: 'Reservation box heading', findUs: 'Page title', lunch: '"Lunch" label', dinner: '"Dinner" label', addressLabel: '"Address" label', phoneLabel: '"Phone" label', openInMaps: 'Google Maps button', menuHere: '"Menu for this branch" button', menuTitle: 'Page title', menuSub: 'Intro line', menuNote: 'Note beside the restaurant buttons', restaurantLabel: '"Restaurant" label', featuredTag: '"Featured" tag', toppings: '"Toppings" heading', navNews: '"News" in footer', promoHeading: 'Page title', newsSub: 'Intro line', newsEmptyTitle: 'Heading', newsEmpty: 'Text', careersTitle: 'Page title', careersSub: 'Intro line', careersEmptyTitle: 'Heading', careersEmpty: 'Text', contactTitle: 'Contact section heading', contactSub: 'Intro line', callTitle: 'Call box heading', callBody: 'Call box text', fbBody: 'Facebook box text', footerHours: '"Hours" label' },
 };
-const IMAGE_LABELS = { vi: { hero: 'Ảnh bìa', about1: 'Ảnh giới thiệu (lớn)', about2: 'Ảnh giới thiệu (nhỏ)', bandHome: 'Ảnh khung đặt bàn', bandAbout: 'Ảnh khung đặt bàn', bandMenu: 'Ảnh khung đặt bàn', newsEmpty: 'Ảnh', careersEmpty: 'Ảnh' }, en: { hero: 'Cover photo', about1: 'Intro photo (large)', about2: 'Intro photo (small)', bandHome: 'Reservation band photo', bandAbout: 'Reservation band photo', bandMenu: 'Reservation band photo', newsEmpty: 'Photo', careersEmpty: 'Photo' } };
+// Banner photos sit behind each page's title; some are reused further down the page.
+const IMAGE_LABELS = { vi: { hero: 'Ảnh bìa (toàn màn hình)', about1: 'Ảnh giới thiệu (lớn)', about2: 'Ảnh giới thiệu (nhỏ)', bandHome: 'Ảnh đầu trang', bandAbout: 'Ảnh đầu trang và khung đặt bàn', bandMenu: 'Ảnh đầu trang và khung đặt bàn', newsEmpty: 'Ảnh đầu trang (và khi chưa có bài)', careersEmpty: 'Ảnh đầu trang (và khi chưa có tin)' }, en: { hero: 'Cover photo (full screen)', about1: 'Intro photo (large)', about2: 'Intro photo (small)', bandHome: 'Banner photo', bandAbout: 'Banner and reservation band photo', bandMenu: 'Banner and reservation band photo', newsEmpty: 'Banner photo (also shown when there are no posts)', careersEmpty: 'Banner photo (also shown when there are no openings)' } };
 // Which fields each page of the site shows, grouped by section, top to bottom.
 const PAGES = {
   home: [
-    ['sec_hero', [['t', 'heroTitle', 1], ['t', 'heroSub', 1], ['img', 'hero'], ['t', 'capCounter']]],
-    ['sec_about', [['t', 'aboutHeading'], ['t', 'aboutLead', 1], ['t', 'aboutSide', 1], ['t', 'readStory'], ['img', 'about1'], ['img', 'about2']]],
-    ['sec_featured', [['t', 'specialsHeading'], ['t', 'fullMenu'], ['featured']]],
-    ['sec_space', [['t', 'spaceHeading'], ['space']]],
-    ['sec_rest', [['t', 'restaurantsHeading'], ['t', 'lunch'], ['t', 'dinner'], ['t', 'directions']]],
-    ['sec_band', [['t', 'bandTitle'], ['t', 'bandBody', 1], ['img', 'bandHome']]],
-    ['sec_common', [['t', 'reserve'], ['t', 'seeMenu'], ['t', 'footerHours'], ['t', 'navNews']]],
-  ],
-  about: [
-    ['sec_head', [['t', 'ourStory'], ['t', 'aboutSub', 1], ['t', 'aboutLead', 1], ['t', 'aboutSide', 1]]],
-    ['sec_story', [['story']]],
-    ['sec_band', [['t', 'bandTitle'], ['t', 'bandBody', 1], ['img', 'bandAbout']]],
+    ['sec_hero', [['t', 'heroTitle', 1], ['img', 'hero']]],
+    ['sec_common', [['t', 'reserve']]],
   ],
   menu: [
-    ['sec_head', [['t', 'menuTitle'], ['t', 'menuSub', 1], ['t', 'restaurantLabel'], ['t', 'featuredTag'], ['t', 'toppings'], ['t', 'menuNote', 1]]],
+    ['sec_head', [['t', 'menuTitle'], ['t', 'menuSub', 1], ['img', 'bandMenu'], ['t', 'restaurantLabel'], ['t', 'menuNote', 1], ['t', 'featuredTag'], ['t', 'toppings']]],
     ['sec_menu', [['menu']]],
-    ['sec_band', [['t', 'menuBandTitle'], ['t', 'bandBody', 1], ['img', 'bandMenu']]],
-  ],
-  promotion: [
-    ['sec_head', [['t', 'promoHeading'], ['t', 'newsSub', 1], ['link', 'news', 'postsLink']]],
-    ['sec_empty', [['t', 'newsEmptyTitle'], ['t', 'newsEmpty', 1], ['img', 'newsEmpty']]],
-  ],
-  careers: [
-    ['sec_head', [['t', 'careersTitle'], ['t', 'careersSub', 1], ['link', 'careers', 'jobsLink']]],
-    ['sec_empty', [['t', 'careersEmptyTitle'], ['t', 'careersEmpty', 1], ['img', 'careersEmpty']]],
+    ['sec_band', [['t', 'menuBandTitle'], ['t', 'bandBody', 1]]],
   ],
   location: [
-    ['sec_head', [['t', 'findUs'], ['t', 'contactSub', 1]]],
-    ['sec_branches', [['branches'], ['t', 'addressLabel'], ['t', 'phoneLabel'], ['t', 'openInMaps'], ['t', 'menuHere']]],
+    ['sec_head', [['t', 'findUs'], ['t', 'contactSub', 1], ['img', 'bandHome']]],
+    ['sec_branches', [['branches'], ['t', 'addressLabel'], ['t', 'phoneLabel'], ['t', 'footerHours'], ['t', 'lunch'], ['t', 'dinner'], ['t', 'openInMaps'], ['t', 'menuHere']]],
     ['sec_boxes', [['t', 'contactTitle'], ['t', 'callTitle'], ['t', 'callBody', 1], ['t', 'fbBody', 1], ['t', 'reserveTitle']]],
   ],
+  about: [
+    ['sec_head', [['t', 'ourStory'], ['t', 'aboutSub', 1], ['img', 'bandAbout']]],
+    ['sec_about', [['t', 'aboutLead', 1], ['t', 'aboutSide', 1], ['img', 'about1'], ['img', 'about2']]],
+    ['sec_story', [['story']]],
+    ['sec_space', [['t', 'spaceHeading'], ['space']]],
+    ['sec_band', [['t', 'bandTitle'], ['t', 'bandBody', 1]]],
+  ],
+  promotion: [
+    ['sec_head', [['t', 'promoHeading'], ['t', 'newsSub', 1], ['img', 'newsEmpty'], ['link', 'news', 'postsLink']]],
+    ['sec_empty', [['t', 'newsEmptyTitle'], ['t', 'newsEmpty', 1]]],
+  ],
+  careers: [
+    ['sec_head', [['t', 'careersTitle'], ['t', 'careersSub', 1], ['img', 'careersEmpty'], ['link', 'careers', 'jobsLink']]],
+    ['sec_empty', [['t', 'careersEmptyTitle'], ['t', 'careersEmpty', 1]]],
+  ],
+};
+// The page of the editor that shows a changed field (for jumps and the publish message).
+const pageOf = gk => {
+  if (gk[0] === 'text' || gk[0] === 'images') { const kind = gk[0] === 'text' ? 't' : 'img'; return PAGE_KEYS.find(pg => PAGES[pg].some(([, it]) => it.some(x => x[0] === kind && x[1] === gk[1]))) || 'home'; }
+  return { menu: 'menu', locations: 'location', story: 'about', space: 'about' }[gk[0]] || 'home';
 };
 const PAGE_KEYS = Object.keys(PAGES);
 const LANGS = ['vi', 'en', 'ja'];
@@ -1543,10 +1544,6 @@ function renderFieldItem([kind, a, b]) {
   if (kind === 't') return fText(['text', a, L()], tl(a), b);
   if (kind === 'img') return fImage(a);
   if (kind === 'link') return `<div class="hintbox">${t(b)} <button class="linkbtn" data-act="go" data-v="${a}">${t('goThere')} →</button></div>`;
-  if (kind === 'featured') return `<p class="note">${t('featuredNote')}</p>` + S.draft.featured.map((f, i) => {
-    const d = S.draft.menu.categories.flatMap(c => c.dishes || []).find(x => x.id === f.id);
-    return `<div class="fl" id="w-featured.${i}"><span class="lab"><span>${esc(d ? d.nameVi : f.id)}</span>${changedMark(['featured', i])}</span>${photoField({ path: { p: ['featured', i, 'photo'], value: f.photo }, name: f.id, note: t('altFromName') })}</div>`;
-  }).join('');
   if (kind === 'space') return S.draft.space.map((s, i) => `<div class="fl" id="w-space.${i}"><span class="lab"><span>${t('photo')} ${i + 1}</span>${changedMark(['space', i])}</span>
       ${photoField({ path: { p: ['space', i, 'src'], value: s.src }, name: 'space-' + (i + 1), note: t('altFromCaption') })}
       ${fText(['space', i, 'caption', L()], t('caption'))}</div>`).join('');
@@ -1858,7 +1855,8 @@ window.addEventListener('message', e => {
     jumpTo(f);
   }, true);
   frame().contentWindow.addEventListener('hashchange', () => {
-    const h = frame().contentWindow.location.hash.slice(1) || 'home';
+    let h = frame().contentWindow.location.hash.slice(1) || 'home';
+    if (h === 'contact') h = 'location';
     if (PAGES[h] && h !== S.page) { S.page = h; S.checks = null; updateSite(); }
   });
 });
@@ -1871,18 +1869,17 @@ function findField(el) {
     const src = el.getAttribute('src');
     const unpend = p => Object.keys(S.pending).find(k => S.pending[k].url === p) || p;
     const s = unpend(src);
-    for (const [k, v] of Object.entries(c.images)) if (v.src === s) return { page: S.page, id: 'w-images.' + k };
+    for (const [k, v] of Object.entries(c.images)) if (v.src === s) return { page: pageOf(['images', k]), id: 'w-images.' + k };
     let i = c.story.findIndex(x => x.photo === s); if (i >= 0) return { page: 'about', id: 'w-story.' + i };
-    i = c.space.findIndex(x => x.src === s); if (i >= 0) return { page: 'home', id: 'w-space.' + i };
-    i = c.featured.findIndex(x => x.photo === s); if (i >= 0) return { page: 'home', id: 'w-featured.' + i };
+    i = c.space.findIndex(x => x.src === s); if (i >= 0) return { page: 'about', id: 'w-space.' + i };
     for (const cat of c.menu.categories) for (const d of cat.dishes || []) if (d.photo === s || Object.values(d.at || {}).some(o => o.photo === s)) return { page: 'menu', item: { cat: cat.key, list: 'dishes', id: d.id } };
     return null;
   }
   const txt = norm(el.innerText || el.textContent);
   if (!txt) return null;
-  for (const [k, v] of Object.entries(c.text)) if (norm(v[l] || v.vi) === txt || norm(v[l] || v.en) === txt) return { page: PAGE_KEYS.find(pg => PAGES[pg].some(([, it]) => it.some(x => x[0] === 't' && x[1] === k))) || S.page, id: `w-text.${k}.${l}` };
+  for (const [k, v] of Object.entries(c.text)) if (norm(v[l] || v.vi) === txt || norm(v[l] || v.en) === txt) return { page: pageOf(['text', k]), id: `w-text.${k}.${l}` };
   for (const [i, s] of c.story.entries()) for (const f of ['kicker', 'title', 'body']) if (norm(pick(s[f], l)) === txt || txt.endsWith(norm(pick(s[f], l)).toUpperCase())) return { page: 'about', id: `w-story.${i}.${f}.${l}`, fallback: 'w-story.' + i };
-  for (const [i, s] of c.space.entries()) if (norm(pick(s.caption, l)) === txt) return { page: 'home', id: `w-space.${i}.caption.${l}` };
+  for (const [i, s] of c.space.entries()) if (norm(pick(s.caption, l)) === txt) return { page: 'about', id: `w-space.${i}.caption.${l}` };
   for (const [i, b] of c.locations.entries()) for (const f of ['short', 'area', 'phone', 'lunch', 'dinner']) if (norm(b[f]) === txt) return { page: 'location', id: `w-locations.${i}.${f}` };
   for (const cat of c.menu.categories) {
     for (const d of cat.dishes || []) if ([d.nameVi, d.nameEn, d.nameJp].some(n => norm(n) === txt)) return { page: 'menu', item: { cat: cat.key, list: 'dishes', id: d.id } };
@@ -2198,7 +2195,7 @@ document.addEventListener('click', async ev => {
     case 'discard': S.modal = { type: 'discard' }; renderOverlay(); return;
     case 'doDiscard': S.draft = clone(S.content); S.item = null; S.modal = null; saveDraft(); pushPreview(true); toast(t('discarded')); updateSite(false); return;
     case 'publishSite': {
-      const pages = [...new Set(siteChanges().map(g => g.gk[0] === 'text' ? (PAGE_KEYS.find(pg => PAGES[pg].some(([, it]) => it.some(x => x[1] === g.gk[1]))) || 'home') : g.gk[0] === 'menu' ? 'menu' : g.gk[0] === 'locations' ? 'location' : g.gk[0] === 'story' ? 'about' : 'home'))].map(p => T.en['pg_' + p]);
+      const pages = [...new Set(siteChanges().map(g => pageOf(g.gk)))].map(p => T.en['pg_' + p]);
       S.modal = { type: 'publish', message: `Website: ${pages.join(', ')} (${siteChanges().length} changes)` }; renderOverlay(); setTimeout(() => document.getElementById('pub-msg')?.focus(), 50); return;
     }
     case 'doPublish': {
