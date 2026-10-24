@@ -90,10 +90,27 @@ against a live account yet. Check the Settings page once the key is set.
 The website's booking form posts to its own `/api/reservations`, which its
 Netlify proxy passes to this API. A booking that meets the rules in
 Settings → Booking (party size, how far ahead, last booking times, closed
-days) is stored as confirmed straight away, and the branch's email in
-Settings gets a message. Staff see new bookings within a minute (the
-Reservations page can also turn on desktop alerts) and can cancel or mark
-no-shows. Each visitor can send at most 5 bookings in 10 minutes.
+days) is stored as **new** (waiting for confirmation), and the branch's
+email in Settings gets a message. Staff see new bookings within a minute (the
+Reservations page can also turn on desktop alerts). Each visitor can send at
+most 5 bookings in 10 minutes.
+
+**Tables.** Settings → Booking sets how many tables each branch offers
+online (0 = no limit), guests per table and how long a booking holds its
+tables (90 minutes by default). New and confirmed bookings hold
+ceil(guests / guests per table) tables from their start time; cancelled and
+no-shows free them. The form greys out full times (`/api/availability`),
+and a booking for a full time is refused with the nearest free times.
+
+**Confirming.** Staff confirm in the portal, or send the guest their link
+from the booking's details (SMS with the message filled in, or Zalo with it
+copied). The link is `reservation.html#c=<token>` on the website, where the
+guest confirms or cancels (`/api/my-booking`). The token is the booking id
+signed with the same secret as sign-ins (`SESSION_SECRET`, see above), so
+nothing extra is stored; anything that signs everyone out also makes earlier
+links stop working. Sending the link automatically by
+Zalo needs a verified Zalo Official Account and an approved message
+template (not set up yet).
 
 `netlify/functions/daily.mjs` runs once a day: it deletes bookings dated
 more than 12 months ago (the booking form tells guests so; personal data

@@ -119,7 +119,7 @@
   .ws .drawer .df { padding: 16px 24px; border-top: 1px solid var(--line); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
   .ws .drawer .df .cta { min-height: 44px; font-size: 13px; padding: 0 8px; }
   .ws .callrow { display: flex; gap: 8px; margin: 4px 0 20px; }
-  .ws .callrow a { flex: 1; text-align: center; border: 1px solid var(--line); background: var(--card); min-height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 13px; }
+  .ws .callrow a, .ws .callrow button { flex: 1; font: inherit; color: inherit; cursor: pointer; text-align: center; border: 1px solid var(--line); background: var(--card); min-height: 40px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 13px; }
   .ws .hist { font-size: 13px; color: var(--muted); border-left: 1px solid var(--line); padding-left: 14px; margin-top: 8px; }
   .ws .hist p { margin: 0 0 6px; }
   .ws .dlg { position: fixed; z-index: 71; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(640px, calc(100vw - 32px)); max-height: calc(100vh - 40px); background: var(--paper); border: 1px solid var(--ink); display: flex; flex-direction: column; animation: dlgIn .34s cubic-bezier(.2, .8, .2, 1) both; box-shadow: 0 24px 60px rgba(43,33,27,.22); }
@@ -440,6 +440,7 @@
   .ws .adder .field { flex: 1; min-width: 160px; }
   .ws .bnotify { display: grid; grid-template-columns: 120px minmax(0, 1fr) minmax(0, 1fr); gap: 8px 16px; align-items: end; }
   .ws .bnotify b { font-weight: 500; padding-bottom: 12px; }
+  .ws .btables { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px 16px; }
   .ws .sdl { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 8px 16px; margin: 0; font-size: 14px; }
   .ws .sdl dt { color: var(--muted); font-size: 13px; }
   .ws .sdl dd { margin: 0; }
@@ -515,7 +516,7 @@
     .ws .setnav button.on { border-bottom-color: var(--accent); }
     .ws .members { --cols: 40px minmax(0, 1fr) auto; }
     .ws .members .c-a, .ws .members .c-st, .ws .members .c-r { display: none; }
-    .ws .rolecards, .ws .bnotify, .ws .mcols { grid-template-columns: minmax(0, 1fr); }
+    .ws .rolecards, .ws .bnotify, .ws .mcols, .ws .btables { grid-template-columns: minmax(0, 1fr); }
     .ws .mtiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .ws .vx span:not(:last-child):nth-child(odd) { visibility: hidden; }
     .ws .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -571,6 +572,17 @@ const BRANCHES = [
   { id: 'phan-chu-trinh', short: 'Phan Chu Trinh' },
 ];
 const br = id => BRANCHES.find(b => b.id === id) || { short: id };
+// The text staff send a guest with their link to confirm or cancel, in the
+// language the guest booked in.
+function askMessage(b) {
+  const url = `https://${settings.domain}/reservation.html#c=${b.token}`, d = b.date.slice(8, 10) + '/' + b.date.slice(5, 7), w = br(b.branch).short;
+  const m = {
+    vi: `MUGI ${w}: Chào ${b.name}, MUGI đã nhận đặt bàn ${b.ppl} khách lúc ${b.time} ngày ${d}. Vui lòng bấm link để xác nhận hoặc huỷ: ${url}`,
+    en: `MUGI ${w}: Hi ${b.name}, we have your booking for ${b.ppl} at ${b.time} on ${d}. Please tap to confirm or cancel: ${url}`,
+    ja: `MUGI ${w}: ${b.name}様、${d} ${b.time}、${b.ppl}名様のご予約を承りました。こちらから確定またはキャンセルしてください: ${url}`,
+  };
+  return m[b.lang] || m.vi;
+}
 const TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
 const dayAt = n => { const d = new Date(TODAY); d.setDate(d.getDate() + n); return d; };
 const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -679,7 +691,9 @@ const T = {
     trafficOff: 'Chưa kết nối Umami nên chưa có số liệu. Thêm UMAMI_API_KEY và UMAMI_WEBSITE_ID trên Netlify để xem lượt truy cập thật.',
     appsNone: 'Chưa có hồ sơ mới. Ứng viên liên hệ qua điện thoại hoặc Zalo cho đến khi có form ứng tuyển online.',
     received: 'Nhận qua website', minsAgo: 'phút trước', hoursAgo: 'giờ trước', history: 'Lịch sử',
-    notNotified: 'Chưa báo được cho chi nhánh', newBooking: 'Đặt bàn mới', newBookings: 'đặt bàn mới', recent24: 'Đặt mới trong 24 giờ', fromSite: 'từ website, đã tự xác nhận', latest: 'Đặt bàn mới nhận', notifyOn: 'Bật thông báo trên máy này', notifyOnD: 'Báo khi có đặt bàn mới, kể cả khi đang mở tab khác.', bookingNoteLive: 'Form đặt bàn trên website dùng các quy tắc này. Đặt bàn online được xác nhận ngay và email được gửi tới chi nhánh.', savedSet: 'Đã lưu', guestMsgSoon: 'Chưa hoạt động: cần kết nối dịch vụ gửi SMS/Zalo.',
+    notNotified: 'Chưa báo được cho chi nhánh', newBooking: 'Đặt bàn mới', newBookings: 'đặt bàn mới', recent24: 'Đặt mới trong 24 giờ', fromSite: 'từ website', latest: 'Đặt bàn mới nhận', notifyOn: 'Bật thông báo trên máy này', notifyOnD: 'Báo khi có đặt bàn mới, kể cả khi đang mở tab khác.', bookingNoteLive: 'Form đặt bàn trên website dùng các quy tắc này. Đặt bàn online được giữ bàn và chờ xác nhận: khách bấm link xác nhận, hoặc nhân viên xác nhận.',
+    tables: 'Số bàn nhận đặt online', tablesD: 'Mỗi đặt bàn đang chờ hoặc đã xác nhận giữ bàn trong khoảng thời gian dưới đây. Khi hết bàn, website gợi ý giờ khác còn trống. Để 0 nếu không giới hạn.', seatsPerTable: 'Số khách mỗi bàn', tableMinutes: 'Giữ bàn trong (phút)', tablesHint: 'Ví dụ: nhóm 6 khách, bàn 4 chỗ → giữ 2 bàn.',
+    askGuest: 'Gửi link xác nhận cho khách', askGuestD: 'Khách mở link để xác nhận hoặc huỷ. Đặt bàn sẽ tự chuyển sang “Đã xác nhận”.', copyMsg: 'Sao chép', msgCopied: 'Đã sao chép tin nhắn', zaloPaste: 'Đã sao chép tin nhắn. Dán vào cuộc trò chuyện Zalo vừa mở.', byGuest: 'khách, qua link', savedSet: 'Đã lưu', guestMsgSoon: 'Chưa tự động: cần tài khoản Zalo OA đã xác thực. Hiện tại nhân viên gửi link xác nhận từ trang chi tiết đặt bàn (SMS hoặc Zalo).',
     bookingN: 'Đặt bàn', date: 'Ngày', phone: 'Điện thoại', notifiedBy: 'Đã gửi email cho chi nhánh',
     marked: 'Đã chuyển sang', undo: 'Hoàn tác', lockedTo: 'Bạn chỉ thấy đặt bàn của chi nhánh', sampleRes: 'Đặt bàn đang là dữ liệu mẫu cho đến khi kết nối cơ sở dữ liệu.',
     newPost: 'Bài mới', p_published: 'Đang hiển thị', p_draft: 'Nháp', p_hidden: 'Đã ẩn', p_expired: 'Hết hạn',
@@ -779,7 +793,9 @@ const T = {
     trafficOff: 'Umami isn’t connected, so there are no numbers yet. Add UMAMI_API_KEY and UMAMI_WEBSITE_ID on Netlify to see real visits.',
     appsNone: 'No new applications. Applicants call or message on Zalo until the online form is ready.',
     received: 'Received via website', minsAgo: 'min ago', hoursAgo: 'h ago', history: 'History',
-    notNotified: 'Branch not notified', newBooking: 'New booking', newBookings: 'new bookings', recent24: 'New in the last 24 hours', fromSite: 'from the website, confirmed automatically', latest: 'Latest bookings', notifyOn: 'Turn on alerts on this device', notifyOnD: 'Get an alert for each new booking, even when another tab is open.', bookingNoteLive: 'The website’s booking form uses these rules. Online bookings are confirmed straight away and the branch gets an email.', savedSet: 'Saved', guestMsgSoon: 'Not active yet: needs an SMS/Zalo sending service.',
+    notNotified: 'Branch not notified', newBooking: 'New booking', newBookings: 'new bookings', recent24: 'New in the last 24 hours', fromSite: 'from the website', latest: 'Latest bookings', notifyOn: 'Turn on alerts on this device', notifyOnD: 'Get an alert for each new booking, even when another tab is open.', bookingNoteLive: 'The website’s booking form uses these rules. Online bookings hold a table and wait for confirmation: the guest taps their confirmation link, or staff confirm.',
+    tables: 'Tables offered online', tablesD: 'Each booking that is waiting or confirmed holds its tables for the time below. When a time is full, the website suggests the nearest free times. Leave 0 for no limit.', seatsPerTable: 'Guests per table', tableMinutes: 'Hold a table for (minutes)', tablesHint: 'For example: 6 guests at 4-seat tables → holds 2 tables.',
+    askGuest: 'Send the guest a confirmation link', askGuestD: 'They open it to confirm or cancel, and the booking changes to “Confirmed” on its own.', copyMsg: 'Copy', msgCopied: 'Message copied', zaloPaste: 'Message copied. Paste it into the Zalo chat that just opened.', byGuest: 'the guest, by link', savedSet: 'Saved', guestMsgSoon: 'Not automatic yet: needs a verified Zalo Official Account. For now, staff send the confirmation link from the booking’s details (SMS or Zalo).',
     bookingN: 'Booking', date: 'Date', phone: 'Phone', notifiedBy: 'Branch notified by email',
     marked: 'Marked as', undo: 'Undo', lockedTo: 'You only see bookings for', sampleRes: 'Reservations are sample data until a database is connected.',
     newPost: 'New post', p_published: 'Live', p_draft: 'Draft', p_hidden: 'Hidden', p_expired: 'Expired',
@@ -897,7 +913,7 @@ const myBookings = () => isStaff() ? bookings.filter(b => b.branch === S.staffBr
 // True once the server says the reservations database is connected.
 const dbOn = () => API.live() && !!S.server?.db && S.server.db !== 'off';
 // A booking from the API, in the shape the views use.
-const fromRow = r => ({ id: r.id, date: r.date, time: r.time, name: r.name, phone: r.phone, ppl: r.party_size, branch: r.branch, status: r.status, note: r.note || '', via: r.confirm_by, created: r.created_at, by: r.updated_by, notified: r.notified_at, notifyError: r.notify_error });
+const fromRow = r => ({ id: r.id, date: r.date, time: r.time, name: r.name, phone: r.phone, ppl: r.party_size, branch: r.branch, status: r.status, note: r.note || '', via: r.confirm_by, created: r.created_at, by: r.updated_by, notified: r.notified_at, notifyError: r.notify_error, token: r.confirm_token, lang: r.lang });
 const fmtWhen = s => new Date(s).toLocaleString(loc(), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 const bookingLine = b => `${b.name} · ${b.ppl} ${t('people')} · ${b.time} ${fmtShort(b.date)} · ${br(b.branch).short}`;
 const pick = (o, l) => (o && (o[l] || o.vi)) || '';
@@ -940,7 +956,7 @@ async function loadMembers() {
 }
 const DEFAULT_SETTINGS = {
   allowSignup: true, domain: 'mugiramen.netlify.app',
-  booking: { maxOnline: 10, daysAhead: 30, lastLunch: '13:30', lastDinner: '21:00', closed: [], autoText: true, remind: false },
+  booking: { maxOnline: 10, daysAhead: 30, lastLunch: '13:30', lastDinner: '21:00', closed: [], tables: { 'mon-city': 0, 'golden-palace': 0, 'phan-chu-trinh': 0 }, seatsPerTable: 4, tableMinutes: 90, autoText: true, remind: false },
   notify: {
     'mon-city': { email: '', zalo: '0966 75 0202' },
     'golden-palace': { email: '', zalo: '0866 60 7560' },
@@ -1260,10 +1276,7 @@ function vNav() {
 function vOverview() {
   const td = today();
   const tb = bookings.filter(b => b.date === td);
-  const dbl = dbOn();
-  // with the database, bookings confirm themselves: show what came in recently instead
-  const waiting = dbl ? bookings.filter(b => b.created && Date.now() - Date.parse(b.created) < 864e5).sort((a, b) => b.created.localeCompare(a.created))
-    : bookings.filter(b => b.status === 'new').sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  const waiting = bookings.filter(b => b.status === 'new' && b.date >= td).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   const guests = tb.filter(b => b.status !== 'cancelled').reduce((s, b) => s + b.ppl, 0);
   const posts = allPosts();
   const live = posts.filter(p => postStatus(p) === 'published');
@@ -1275,12 +1288,12 @@ function vOverview() {
   return `<div class="head"><div><span class="num">${esc(fmtDay(td))}</span><h1>${t('hello')} ${part}, ${esc(S.me.name)}</h1></div></div>
   <div class="tiles">
     <div class="tile"><div class="lbl">${t('todayBookings')}</div><div class="v">${tb.length}</div><div class="hint">${t('acrossBranches')}</div></div>
-    <div class="tile"><div class="lbl">${t(dbl ? 'recent24' : 'waiting')}</div><div class="v red">${waiting.length}</div><div class="hint">${t(dbl ? 'fromSite' : 'needAction')}</div></div>
+    <div class="tile"><div class="lbl">${t('waiting')}</div><div class="v red">${waiting.length}</div><div class="hint">${t('needAction')}</div></div>
     <div class="tile"><div class="lbl">${t('guestsToday')}</div><div class="v">${guests}</div><div class="hint">${BRANCHES.map(b => `${b.short} ${tb.filter(x => x.branch === b.id && x.status !== 'cancelled').reduce((s, x) => s + x.ppl, 0)}`).join(' · ')}</div></div>
     <div class="tile"><div class="lbl">${t('livePosts')}</div><div class="v">${live.length}</div><div class="hint">${t('onSite')}</div></div>
   </div>
   <div class="scroll"><div class="cols">
-    <div class="blk"><h2>${t(dbl ? 'latest' : 'needConfirm')} <button data-act="go" data-v="reservations" data-st="${dbl ? 'all' : 'new'}">${t('seeAll')} →</button></h2>
+    <div class="blk"><h2>${t('needConfirm')} <button data-act="go" data-v="reservations" data-st="new">${t('seeAll')} →</button></h2>
       ${waiting.length ? waiting.slice(0, 5).map(b => `<div class="mini">
         <span class="t">${b.time}</span>
         <div><b style="font-weight:500">${esc(b.name)}</b> · ${b.ppl} ${t('people')}<small>${esc(br(b.branch).short)} · ${esc(fmtDay(b.date))}</small></div>
@@ -1347,6 +1360,8 @@ function vDrawer() {
     <div class="dh"><div><span class="num">${t('bookingN')} #${b.id}</span><h2>${esc(b.name)}</h2><div style="margin-top:8px">${stChip(b.status)}</div></div><button class="x" data-act="close" aria-label="Close">×</button></div>
     <div class="db">
       <div class="callrow"><a href="tel:${tel}">${t('call')}</a><a href="https://zalo.me/${tel}" target="_blank" rel="noopener">${t('zalo')}</a><a href="sms:${tel}">${t('sms')}</a></div>
+      ${b.status === 'new' && b.token ? `<span class="flabel">${t('askGuest')}</span><p class="muted" style="font-size:13px;margin:4px 0 0">${t('askGuestD')}</p>
+      <div class="callrow"><a href="sms:${tel}?&body=${encodeURIComponent(askMessage(b))}">${t('sms')}</a><a href="https://zalo.me/${tel}" target="_blank" rel="noopener" data-act="askZalo" data-id="${b.id}">${t('zalo')}</a><button type="button" data-act="askCopy" data-id="${b.id}">${t('copyMsg')}</button></div>` : ''}
       <dl class="summary" style="margin-top:0">
         <dt>${t('date')}</dt><dd>${esc(fmtDay(b.date))}</dd>
         <dt>${t('time')}</dt><dd style="font-family:var(--mincho);font-size:20px">${b.time}</dd>
@@ -1358,7 +1373,7 @@ function vDrawer() {
       </dl>
       <span class="flabel">${t('history')}</span>
       <div class="hist">${b.created
-        ? `<p>${t('received')} · ${esc(fmtWhen(b.created))}</p>${b.notified ? `<p>${t('notifiedBy')}</p>` : `<p class="muted">${t('notNotified')}${b.notifyError ? `: ${esc(b.notifyError)}` : ''}</p>`}${b.by ? `<p>${t('marked')} “${t('s_' + b.status)}” · ${esc(b.by)}</p>` : ''}`
+        ? `<p>${t('received')} · ${esc(fmtWhen(b.created))}</p>${b.notified ? `<p>${t('notifiedBy')}</p>` : `<p class="muted">${t('notNotified')}${b.notifyError ? `: ${esc(b.notifyError)}` : ''}</p>`}${b.by ? `<p>${t('marked')} “${t('s_' + b.status)}” · ${esc(b.by === 'guest' ? t('byGuest') : b.by)}</p>` : ''}`
         : `<p>${t('received')}${b.ago ? ` · ${b.ago === '0' ? '12 ' + t('minsAgo') : b.ago + ' ' + t('hoursAgo')}` : ''}</p><p>${t('notifiedBy')}</p>${b.status !== 'new' ? `<p>${t('marked')} “${t('s_' + b.status)}”</p>` : ''}`}</div>
     </div>
     <div class="df">
@@ -1631,6 +1646,8 @@ function vSetBooking() {
   return `<div class="notice">${t(dbOn() ? 'bookingNoteLive' : 'bookingNote')}</div>`
     + sBlock(t('rules'), t('rulesD'), `<div class="row2">${sField('booking.maxOnline', t('maxOnline'), 'number', 'min="1" max="100"')}${sField('booking.daysAhead', t('daysAhead'), 'number', 'min="1" max="365"')}</div>
         <div class="row2">${sField('booking.lastLunch', t('lastLunch'), 'time')}${sField('booking.lastDinner', t('lastDinner'), 'time')}</div>`)
+    + sBlock(t('tables'), t('tablesD'), `<div class="btables">${BRANCHES.map(x => sField(`booking.tables.${x.id}`, esc(x.short), 'number', 'min="0" max="500"')).join('')}</div>
+        <div class="row2">${sField('booking.seatsPerTable', t('seatsPerTable'), 'number', 'min="1" max="50"')}${sField('booking.tableMinutes', t('tableMinutes'), 'number', 'min="30" max="300" step="15"')}</div><p class="note" style="margin:0">${t('tablesHint')}</p>`)
     + sBlock(t('closedDays'), t('closedD'), `<div class="closed">${b.closed.length ? b.closed.slice().sort().map(d => `<span>${esc(fmtDay(d))}<button data-act="delClosed" data-v="${d}" aria-label="${t('del')} ${d}">×</button></span>`).join('') : `<span class="muted" style="border:0;background:none;padding:0">${t('noClosed')}</span>`}</div>
         <div class="adder"><div class="field"><label for="s-closed">${t('dateL')}</label><input id="s-closed" type="date" min="${today()}"></div><button class="cta ghost sm" data-act="addClosed">${t('addDay')}</button></div>`)
     + sBlock(t('guestMsg'), t('guestMsgD'), `<p class="muted" style="margin:0 0 8px;font-size:13px">${t('guestMsgSoon')}</p>` + sCheck('booking.autoText', t('autoText')) + sCheck('booking.remind', t('remind')))
@@ -2278,6 +2295,13 @@ document.addEventListener('click', async ev => {
   if (!el || el.tagName === 'SELECT' || el.tagName === 'INPUT' || el.closest('label.upl')) return;
   const a = el.dataset.act, v = el.dataset.v, id = el.dataset.id;
   if (a === 'seen') { applications[+el.dataset.i].seen = true; setTimeout(render); return; }
+  if (a === 'askCopy' || a === 'askZalo') {
+    // Zalo links can't carry a message, so it goes on the clipboard to paste;
+    // the Zalo link itself still opens the chat
+    const b = bookings.find(x => x.id === +id);
+    navigator.clipboard?.writeText(askMessage(b)).then(() => toast(t(a === 'askZalo' ? 'zaloPaste' : 'msgCopied')), () => {});
+    return;
+  }
   ev.preventDefault();
   switch (a) {
     case 'lang': S.lang = v; break;
