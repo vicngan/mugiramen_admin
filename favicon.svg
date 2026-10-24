@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>MUGI Admin</title>
+  <!-- The MUGI wheat mark in gold on the portal's sidebar brown, with heavier
+       strokes than the site's icon so it still reads at 16px. -->
+  <rect width="64" height="64" rx="14" fill="#2b211b"/>
+  <g transform="translate(32 33) scale(0.25) translate(-120 -132)" fill="none" stroke="#D8AE56" stroke-width="17" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M60,38 L60,168 C60,205 86,226 120,226 C154,226 180,205 180,168 L180,38"/>
+    <path d="M60,38 C92,54 120,70 120,92"/>
+    <path d="M180,38 C148,54 120,70 120,92"/>
+    <path d="M60,92 C92,110 120,128 120,150"/>
+    <path d="M180,92 C148,110 120,128 120,150"/>
+    <path d="M60,150 C92,168 120,184 120,206"/>
+    <path d="M180,150 C148,168 120,184 120,206"/>
+    <path d="M120,206 L120,226"/>
+  </g>
+</svg>
