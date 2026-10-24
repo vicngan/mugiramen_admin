@@ -101,9 +101,32 @@ secret key, can reach them. Find the key under Project settings → API keys →
 Secret keys, and put it in Netlify (or in `.env` for local testing, together
 with `SUPABASE_URL`). Locally, without those, bookings go to `data/`.
 
+## Staff accounts
+
+Everyone signs in with their own email and password (stored as scrypt hashes
+in the `staff` table, `db/002_staff.sql`).
+
+- **First sign-in:** while there is no owner, signing in with your email and
+  `ADMIN_PASSWORD` creates the owner account. After that, the shared password
+  only works as that owner's own password until they change it.
+- **Adding people:** Settings → Members & access → invite. The owner gets a
+  one-time link (valid 7 days) to send by Zalo or text; the person opens it
+  and sets their password. The same "make a set-password link" button in a
+  member's dialog resets a forgotten password.
+- **Requests:** people can ask to join from the sign-in page (if allowed in
+  Settings); an owner approves them and picks their access.
+- **What the server enforces:** branch staff only get their own branch's
+  bookings; publishing needs Website (or News, or Careers for those parts);
+  booking rules and members need the members permission (owners only).
+  Removing someone or changing a password ends their sessions at once.
+- Five wrong passwords lock the account for 15 minutes.
+
+Without a database (local demo), the portal keeps the old shared-password
+sign-in and keeps members in the browser.
+
 ## Not built yet
 
-Job applications and staff accounts are still sample data, and drafts of
-unpublished edits are kept in the browser. Guest messages (SMS/Zalo) and Zalo
+Job applications are still sample data, and drafts of unpublished edits are
+kept in the browser. Guest messages (SMS/Zalo) and Zalo
 alerts to branches aren't connected.
 # mugiramen_admin
