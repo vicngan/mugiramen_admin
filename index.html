@@ -84,7 +84,7 @@
   .ws .daynav { display: flex; align-items: center; gap: 4px; }
   .ws .daynav button { width: 44px; height: 44px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font-size: 18px; color: var(--ink); }
   .ws .daynav .day { font-family: var(--mincho); font-size: 22px; padding: 0 12px; min-width: 200px; }
-  .ws .daynav .today { font: 500 13px var(--sans); width: auto; padding: 0 12px; }
+  .ws .daynav .today { font: 500 13px var(--sans); width: auto; padding: 0 12px; white-space: nowrap; flex: 0 0 auto; }
   .ws .pill { min-height: 38px; font-size: 13px; padding: 0 14px; }
   .ws .pill .c { color: var(--muted); margin-left: 6px; font-size: 12px; }
   .ws .pill.on .c { color: #cfc3ae; }
@@ -379,7 +379,7 @@
   /* Reservations only: a slimmer header and filter bar so more bookings fit on screen */
   .ws .main.res .head { padding-bottom: 12px; }
   .ws .main.res .daynav button { width: 38px; height: 38px; }
-  .ws .main.res .daynav .today { height: 38px; }
+  .ws .main.res .daynav .today { height: 38px; width: auto; }
   .ws .main.res .daynav .day { font-size: 19px; min-width: 170px; }
   .ws .main.res .pill { min-height: 34px; }
   .ws .main.res .filters { gap: 10px; }
@@ -589,11 +589,13 @@ const SAMPLE_BOOKINGS = [
   B(2, '18:00', 'Mai Anh Tuấn', '0398 552 017', 10, 'golden-palace', 'new', 'Nhóm 10 người, có trẻ em'),
 ];
 let bookings = [];
-const applications = [
+// Shown in demo mode only; the portal has no applications until the online form is built.
+const SAMPLE_APPS = [
   { name: 'Lương Văn Hiếu', phone: '0961 202 384', job: 'Phụ bếp ramen', date: iso(dayAt(0)), note: 'Có thể bắt đầu từ tháng 11', seen: false },
   { name: 'Phan Thị Hồng', phone: '0834 671 029', job: 'Phụ bếp ramen', date: iso(dayAt(-1)), note: 'Đã làm 1 năm tại quán phở', seen: false },
   { name: 'Kiều Minh Quân', phone: '0357 448 190', job: 'Phụ bếp ramen', date: iso(dayAt(-3)), note: '', seen: true },
 ];
+let applications = [];
 const DEFAULT_USERS = [
   { name: 'Nguyễn Khánh Linh', email: 'linh@mugi.vn', role: 'owner', branch: 'all', last: 0 },
   { name: 'Trịnh Văn Tùng', email: 'tung@mugi.vn', role: 'manager', branch: 'all', last: 2 },
@@ -668,6 +670,7 @@ const T = {
     confirm: 'Xác nhận', cancel: 'Huỷ', noshow: 'Không đến', call: 'Gọi', zalo: 'Zalo', sms: 'SMS',
     noBookings: 'Không có đặt bàn nào cho bộ lọc này.', request: 'Yêu cầu đặc biệt', none: 'Không có', confirmVia: 'Khách muốn xác nhận qua', via_call: 'Gọi điện', via_sms: 'Tin nhắn SMS', via_zalo: 'Zalo',
     setupNote: 'Lần đăng nhập đầu tiên: dùng email của bạn và mật khẩu chung (ADMIN_PASSWORD). Tài khoản này sẽ là chủ nhà hàng.', firstOwner: 'Đã tạo tài khoản chủ nhà hàng. Hãy đổi mật khẩu trong Cài đặt → Tài khoản.', linkTitle: 'Gửi link này cho {name}', linkD: 'Link dùng một lần, hết hạn sau 7 ngày. Gửi qua Zalo hoặc tin nhắn; người nhận mở link để đặt mật khẩu.', copyLink: 'Sao chép link', copied: 'Đã sao chép', newLink: 'Tạo link đặt mật khẩu', newLinkD: 'Dùng khi người này quên mật khẩu hoặc chưa nhận được link.', inviteTitle: 'Đặt mật khẩu', inviteSub: 'Chào {name}, đặt mật khẩu để bắt đầu dùng trang quản trị MUGI.', inviteSave: 'Lưu và đăng nhập',
+    appsSoon: 'Chưa có form ứng tuyển online. Ứng viên đang liên hệ qua điện thoại hoặc Zalo, theo cách bạn chọn ở mỗi vị trí.',
     received: 'Nhận qua website', minsAgo: 'phút trước', hoursAgo: 'giờ trước', history: 'Lịch sử',
     notNotified: 'Chưa báo được cho chi nhánh', newBooking: 'Đặt bàn mới', newBookings: 'đặt bàn mới', recent24: 'Đặt mới trong 24 giờ', fromSite: 'từ website, đã tự xác nhận', latest: 'Đặt bàn mới nhận', notifyOn: 'Bật thông báo trên máy này', notifyOnD: 'Báo khi có đặt bàn mới, kể cả khi đang mở tab khác.', bookingNoteLive: 'Form đặt bàn trên website dùng các quy tắc này. Đặt bàn online được xác nhận ngay và email được gửi tới chi nhánh.', savedSet: 'Đã lưu', guestMsgSoon: 'Chưa hoạt động: cần kết nối dịch vụ gửi SMS/Zalo.',
     bookingN: 'Đặt bàn', date: 'Ngày', phone: 'Điện thoại', notifiedBy: 'Đã gửi email cho chi nhánh',
@@ -683,7 +686,7 @@ const T = {
     livePrev: 'Xem trước', onlyYou: 'Chỉ bạn thấy, chưa đăng', published: 'Đã đăng lên website', draftSaved: 'Đã lưu nháp trên máy này', hiddenT: 'Đã ẩn khỏi website', deleted: 'Đã xoá',
     needTitle: 'Cần có tiêu đề tiếng Việt trước khi đăng.', titlePh: 'Tiêu đề bài viết', bodyPh: 'Nội dung bài viết…',
     openings: 'Vị trí tuyển', apps: 'Hồ sơ ứng tuyển', newJob: 'Vị trí mới', position: 'Vị trí', jobType: 'Hình thức', full: 'Toàn thời gian', part: 'Bán thời gian',
-    howApply: 'Cách ứng tuyển', a_form: 'Điền form trên website', a_phone: 'Gọi điện cho chi nhánh', a_zalo: 'Nhắn Zalo',
+    howApply: 'Cách ứng tuyển', a_form: 'Form trên website (sắp có; tạm hiện số liên hệ)', a_phone: 'Gọi điện cho chi nhánh', a_zalo: 'Nhắn Zalo',
     careersSub: 'Đăng tin tuyển dụng và xem hồ sơ ứng tuyển.', appliedFor: 'Ứng tuyển', newTag: 'Mới', jobDesc: 'Mô tả công việc', applicant: 'Người ứng tuyển', received2: 'Ngày gửi',
     staffSub: 'Ai được đăng nhập và được làm gì.', addStaff: 'Thêm nhân viên', lastSeen: 'Lần cuối', role: 'Vai trò', daysAgo: 'ngày trước', online: 'Hôm nay', person: 'Nhân viên',
     ownerCan: 'Toàn quyền: website, tin tức, tuyển dụng, đặt bàn, tài khoản', staffCan: 'Chỉ đặt bàn của chi nhánh mình',
@@ -765,6 +768,7 @@ const T = {
     confirm: 'Confirm', cancel: 'Cancel', noshow: 'No-show', call: 'Call', zalo: 'Zalo', sms: 'SMS',
     noBookings: 'No bookings for this filter.', request: 'Special request', none: 'None', confirmVia: 'Guest wants confirmation by', via_call: 'Phone call', via_sms: 'Text message', via_zalo: 'Zalo',
     setupNote: 'First sign-in: use your email and the shared password (ADMIN_PASSWORD). This account becomes the owner.', firstOwner: 'Owner account created. Change your password in Settings → Account.', linkTitle: 'Send this link to {name}', linkD: 'One-time link, valid for 7 days. Send it by Zalo or text; they open it to set their password.', copyLink: 'Copy link', copied: 'Copied', newLink: 'Make a set-password link', newLinkD: 'For when they forgot their password or never got the link.', inviteTitle: 'Set your password', inviteSub: 'Hi {name}, set a password to start using the MUGI admin.', inviteSave: 'Save and sign in',
+    appsSoon: 'There’s no online application form yet. Applicants contact you by phone or Zalo, as set on each opening.',
     received: 'Received via website', minsAgo: 'min ago', hoursAgo: 'h ago', history: 'History',
     notNotified: 'Branch not notified', newBooking: 'New booking', newBookings: 'new bookings', recent24: 'New in the last 24 hours', fromSite: 'from the website, confirmed automatically', latest: 'Latest bookings', notifyOn: 'Turn on alerts on this device', notifyOnD: 'Get an alert for each new booking, even when another tab is open.', bookingNoteLive: 'The website’s booking form uses these rules. Online bookings are confirmed straight away and the branch gets an email.', savedSet: 'Saved', guestMsgSoon: 'Not active yet: needs an SMS/Zalo sending service.',
     bookingN: 'Booking', date: 'Date', phone: 'Phone', notifiedBy: 'Branch notified by email',
@@ -780,7 +784,7 @@ const T = {
     livePrev: 'Preview', onlyYou: 'Only you can see this, not published', published: 'Published to the website', draftSaved: 'Draft saved on this device', hiddenT: 'Hidden from the website', deleted: 'Deleted',
     needTitle: 'Add a Vietnamese title before publishing.', titlePh: 'Post title', bodyPh: 'Post text…',
     openings: 'Openings', apps: 'Applications', newJob: 'New opening', position: 'Position', jobType: 'Type', full: 'Full-time', part: 'Part-time',
-    howApply: 'How to apply', a_form: 'Form on the website', a_phone: 'Call the branch', a_zalo: 'Message on Zalo',
+    howApply: 'How to apply', a_form: 'Website form (coming; shows contact numbers for now)', a_phone: 'Call the branch', a_zalo: 'Message on Zalo',
     careersSub: 'Post job openings and see who applied.', appliedFor: 'Applied for', newTag: 'New', jobDesc: 'Job description', applicant: 'Applicant', received2: 'Received',
     staffSub: 'Who can sign in and what they can do.', addStaff: 'Add staff', lastSeen: 'Last seen', role: 'Role', daysAgo: 'days ago', online: 'Today', person: 'Person',
     ownerCan: 'Everything: website, news, jobs, reservations, accounts', staffCan: 'Reservations for their branch only',
@@ -926,7 +930,7 @@ async function loadMembers() {
   S.pendingSignups = list.filter(u => u.status === 'pending').map(u => ({ id: u.id, name: u.name, email: u.email, branch: u.branch, date: (u.createdAt || '').slice(0, 10) }));
 }
 const DEFAULT_SETTINGS = {
-  allowSignup: true, domain: 'mugi.vn',
+  allowSignup: true, domain: 'mugiramen.netlify.app',
   booking: { maxOnline: 10, daysAhead: 30, lastLunch: '13:30', lastDinner: '21:00', closed: [], autoText: true, remind: false },
   notify: {
     'mon-city': { email: 'moncity@mugi.vn', zalo: '0966 75 0202' },
@@ -1060,6 +1064,7 @@ function afterLogin() {
   S.draft = saved && saved.base === hashOf(S.content) ? saved.draft : clone(S.content);
   S.view = isStaff() ? 'reservations' : 'overview';
   bookings = dbOn() ? [] : clone(SAMPLE_BOOKINGS);
+  applications = dbOn() ? [] : clone(SAMPLE_APPS);
   render();
   if (S.firstOwner) { S.firstOwner = false; toast(t('firstOwner')); }
   loadMembers().then(() => document.getElementById('nav') && (document.getElementById('nav').innerHTML = vNav())).catch(() => {});
@@ -1280,9 +1285,9 @@ function vOverview() {
       ${drafts.length ? `<div class="blk"><h2>${t('drafts')}</h2>
         ${drafts.map(([k, p]) => `<div class="mini"><span class="st draft">${t('p_draft')}</span><div>${esc(p.title.vi) || '—'}<small>${t(k)}</small></div><div class="rowacts"><button data-act="${k === 'news' ? 'editPost' : 'editJob'}" data-id="${p.id}">${t('edit')}</button></div></div>`).join('')}
       </div>` : ''}
-      <div class="blk"><h2>${t('newApps')} <button data-act="go" data-v="careers" data-tab="apps">${t('seeAll')} →</button></h2>
+      ${applications.some(a => !a.seen) ? `      <div class="blk"><h2>${t('newApps')} <button data-act="go" data-v="careers" data-tab="apps">${t('seeAll')} →</button></h2>
         ${applications.filter(a => !a.seen).map(a => `<div class="mini"><span class="av">${esc(a.name.split(' ').pop()[0])}</span><div>${esc(a.name)}<small>${esc(a.job)}</small></div><span class="muted num-t" style="font-size:12px">${fmtShort(a.date)}</span></div>`).join('')}
-      </div>
+      </div>` : ''}
     </div>
   </div></div>`;
 }
@@ -1487,7 +1492,7 @@ function vCareers() {
           <div class="c-j">${esc(a.job)}${a.note ? `<br><small>“${esc(a.note)}”</small>` : ''}</div>
           <div class="c-d muted num-t">${fmtShort(a.date)}</div>
           <div><a class="cta ghost sm" href="tel:${a.phone.replace(/\s/g, '')}" data-act="seen" data-i="${i}">${t('call')}</a></div></div>`).join('')}
-        ${applications.length ? '' : `<div class="emptyrow">${t('noApps')}</div>`}
+        ${applications.length ? '' : `<div class="emptyrow">${t(dbOn() ? 'appsSoon' : 'noApps')}</div>`}
       </div>`;
   return `<div class="head"><div><span class="num">04 · 採用</span><h1>${t('careers')}</h1><p class="sub">${t('careersSub')}</p></div>
     <div class="tools"><button class="cta red" data-act="newJob">+ ${t('newJob')}</button></div></div>${tabs}<div class="scroll">${body}</div>`;
@@ -1664,7 +1669,7 @@ function vSetWebsite() {
     </figure>`;
   return sBlock(t('siteLive'), t('siteLiveD'), `<div class="livecard">${sv ? stChip('published', t('siteOnline')) : stChip('draft', t('modeDemo'))}<a href="https://${esc(settings.domain)}" target="_blank" rel="noopener">${esc(settings.domain)} ↗</a></div>
         <dl class="sdl"><dt>${t('lastUpdate')}</dt><dd>${lastDate ? esc(new Date(lastDate).toLocaleString(loc(), { dateStyle: 'medium', timeStyle: 'short' })) : lastDate === null ? '…' : t('neverPub')}</dd></dl>
-        ${sField('domain', t('domain'), 'text', 'placeholder="mugi.vn"')}`)
+        ${sField('domain', t('domain'), 'text', 'placeholder="mugiramen.netlify.app"')}`)
     + sBlock(t('traffic'), real ? t('trafficLive') : S[key]?.error ? t('trafficErr') : t('trafficD'), `
         <div class="tiles mtiles">
           <div class="tile"><div class="lbl">${t('visitorsL')}</div><div class="v">${fmtN(visitors)}</div></div>
