@@ -74,6 +74,11 @@ file), the portal runs in demo mode and nothing is saved.
    - `RESEND_API_KEY`, `NOTIFY_FROM`: optional, to email each branch its new
      bookings (for example `MUGI <booking@mugi.vn>`). `ADMIN_URL`: optional,
      this portal's address, linked in those emails.
+   - `MONITOR_URL`, `MONITOR_KEY`: optional, to report failures to ACASOHQ
+     (ACASO's monitoring). `MONITOR_URL` is `https://acasohq.up.railway.app`;
+     the key comes from Mugi admin's settings page in ACASOHQ. Reported: API
+     errors, and bookings whose branch email didn't send. Guests' names and
+     phone numbers are never sent.
 4. Give it its own domain, for example `admin.mugi.vn`. Every page is sent
    with `noindex` so search engines skip it.
 

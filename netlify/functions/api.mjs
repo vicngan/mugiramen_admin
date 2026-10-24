@@ -11,8 +11,10 @@
 //   SUPABASE_URL, SUPABASE_SECRET_KEY   the reservations database
 //   RESEND_API_KEY, NOTIFY_FROM          optional, emails each branch its new bookings
 //   ADMIN_URL                            optional, this portal's address, linked in those emails
+//   MONITOR_URL, MONITOR_KEY             optional, report failures to ACASOHQ (lib/monitor.mjs)
 import { handleApi, makeBackend } from '../../lib/api.mjs';
 import { makeDb } from '../../lib/db.mjs';
+import { report } from '../../lib/monitor.mjs';
 
 export const config = { path: '/api/*' };
 
@@ -30,8 +32,10 @@ export default async (req) => {
         ip: (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() || req.headers.get('x-nf-client-connection-ip') || '' },
       { backend: makeBackend(env), db: makeDb(env), env },
     );
+    if (status >= 500) await report(env, 'error', 'api', `${req.method} ${url.pathname} answered ${status}: ${json?.error ?? ''}`);
     return Response.json(json, { status, headers: { 'cache-control': 'no-store' } });
   } catch (e) {
+    await report(env, 'error', 'api', `${req.method} ${url.pathname} failed: ${e.message}`, { detail: e.stack?.slice(0, 4000) });
     return Response.json({ error: e.message }, { status: 500 });
   }
 };
