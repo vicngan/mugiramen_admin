@@ -44,6 +44,10 @@ file), the portal runs in demo mode and nothing is saved.
 - `lib/publish.mjs`: content validation and the git backends (local
   checkout or GitHub).
 - `lib/stats.mjs`: visitor numbers from Umami.
+- `lib/reservations.mjs`: online booking rules, settings and the branch email.
+- `lib/db.mjs`: storage for bookings and settings (Supabase, or files in
+  `data/` when running locally).
+- `db/*.sql`: the database tables, applied in order.
 - `netlify/functions/api.mjs`: the API on Netlify.
 - `tools/server.mjs`: the local dev server.
 
@@ -65,14 +69,36 @@ file), the portal runs in demo mode and nothing is saved.
      token or password) signs everyone out.
    - `UMAMI_API_KEY`, `UMAMI_WEBSITE_ID`: optional, for real visitor numbers
      in Settings → Website & data.
+   - `SUPABASE_URL`, `SUPABASE_SECRET_KEY`: the reservations database (see
+     below). Without them, the booking form can't take bookings.
+   - `RESEND_API_KEY`, `NOTIFY_FROM`: optional, to email each branch its new
+     bookings (for example `MUGI <booking@mugi.vn>`). `ADMIN_URL`: optional,
+     this portal's address, linked in those emails.
 4. Give it its own domain, for example `admin.mugi.vn`. Every page is sent
    with `noindex` so search engines skip it.
 
 The Umami calls are written against Umami's v2 API but have not been run
 against a live account yet. Check the Settings page once the key is set.
 
+## Reservations
+
+The website's booking form posts to its own `/api/reservations`, which its
+Netlify proxy passes to this API. A booking that meets the rules in
+Settings → Booking (party size, how far ahead, last booking times, closed
+days) is stored as confirmed straight away, and the branch's email in
+Settings gets a message. Staff see new bookings within a minute (the
+Reservations page can also turn on desktop alerts) and can cancel or mark
+no-shows. Each visitor can send at most 5 bookings in 10 minutes.
+
+The database is the Supabase project `mugi` (Singapore). Its tables are in
+`db/`; row level security is on with no policies, so only this API, with the
+secret key, can reach them. Find the key under Project settings → API keys →
+Secret keys, and put it in Netlify (or in `.env` for local testing, together
+with `SUPABASE_URL`). Locally, without those, bookings go to `data/`.
+
 ## Not built yet
 
-Reservations, job applications and staff accounts are sample data. They need
-a database. Until then, drafts of unpublished edits are kept in the browser.
+Job applications and staff accounts are still sample data, and drafts of
+unpublished edits are kept in the browser. Guest messages (SMS/Zalo) and Zalo
+alerts to branches aren't connected.
 # mugiramen_admin

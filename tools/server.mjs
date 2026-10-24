@@ -11,12 +11,17 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { handleApi, makeBackend } from '../lib/api.mjs';
+import { makeDb } from '../lib/db.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+// Settings such as SUPABASE_URL can live in .env (gitignored).
+try { process.loadEnvFile(path.join(ROOT, '.env')); } catch {}
 const SITE = path.resolve(ROOT, process.env.SITE_DIR || '../mugi_landing');
 const PORT = Number(process.env.PORT) || 4321;
 const env = process.env;
 const backend = makeBackend(env, SITE);
+// Without SUPABASE_URL, bookings and settings are kept in data/ (gitignored).
+const db = makeDb(env, path.join(ROOT, 'data'));
 const TYPES = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.mjs': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.svg': 'image/svg+xml', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.webp': 'image/webp', '.pdf': 'application/pdf' };
 
 const send = (res, code, body) => { res.writeHead(code, { 'content-type': 'application/json', 'cache-control': 'no-store' }); res.end(JSON.stringify(body)); };
@@ -41,16 +46,17 @@ http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://x');
   const p = decodeURIComponent(url.pathname);
   try {
-    if (p.startsWith('/api/')) {
+    // /site/api/* is the website's own /api/* (its Netlify proxy to this API)
+    if (p.startsWith('/api/') || p.startsWith('/site/api/')) {
       const body = req.method === 'POST' ? await readBody(req) : {};
-      const [status, json] = await handleApi({ method: req.method, path: p, query: Object.fromEntries(url.searchParams), body, auth: req.headers.authorization || '' }, { backend, env });
+      const [status, json] = await handleApi({ method: req.method, path: p.replace(/^\/site/, ''), query: Object.fromEntries(url.searchParams), body, auth: req.headers.authorization || '', ip: req.socket.remoteAddress }, { backend, db, env });
       send(res, status, json);
     } else if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); res.end(); }
     else if (p === '/site') { res.writeHead(301, { location: '/site/' }); res.end(); }
     else if (p.startsWith('/site/')) await file(res, SITE, p.slice(5));
-    else if (/^\/(tools|lib|netlify)\//.test(p)) { res.writeHead(404); res.end(); }
+    else if (/^\/(tools|lib|netlify|data|db)\//.test(p)) { res.writeHead(404); res.end(); }
     else await file(res, ROOT, p);
   } catch (e) {
     send(res, 500, { error: e.message });
   }
-}).listen(PORT, () => console.log(`MUGI admin  http://localhost:${PORT}/\nSite        http://localhost:${PORT}/site/  (from ${SITE})\nPublishing  ${backend.mode}`));
+}).listen(PORT, () => console.log(`MUGI admin  http://localhost:${PORT}/\nSite        http://localhost:${PORT}/site/  (from ${SITE})\nPublishing  ${backend.mode}\nBookings    ${db.mode}`));

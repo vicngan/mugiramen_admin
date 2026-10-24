@@ -8,7 +8,11 @@
 //   GITHUB_BRANCH    optional, defaults to main (the branch the site deploys from)
 //   SESSION_SECRET   optional, any long random string
 //   UMAMI_API_KEY, UMAMI_WEBSITE_ID   optional, real visitor numbers
+//   SUPABASE_URL, SUPABASE_SECRET_KEY   the reservations database
+//   RESEND_API_KEY, NOTIFY_FROM          optional, emails each branch its new bookings
+//   ADMIN_URL                            optional, this portal's address, linked in those emails
 import { handleApi, makeBackend } from '../../lib/api.mjs';
+import { makeDb } from '../../lib/db.mjs';
 
 export const config = { path: '/api/*' };
 
@@ -21,8 +25,10 @@ export default async (req) => {
   }
   try {
     const [status, json] = await handleApi(
-      { method: req.method, path: url.pathname, query: Object.fromEntries(url.searchParams), body, auth: req.headers.get('authorization') || '' },
-      { backend: makeBackend(env), env },
+      { method: req.method, path: url.pathname, query: Object.fromEntries(url.searchParams), body, auth: req.headers.get('authorization') || '',
+        // the website reaches us through its proxy, which passes the guest's address along
+        ip: (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() || req.headers.get('x-nf-client-connection-ip') || '' },
+      { backend: makeBackend(env), db: makeDb(env), env },
     );
     return Response.json(json, { status, headers: { 'cache-control': 'no-store' } });
   } catch (e) {

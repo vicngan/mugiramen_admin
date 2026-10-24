@@ -570,7 +570,8 @@ const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')
 
 let bid = 100;
 const B = (day, time, name, phone, ppl, branch, status, note = '', ago = '', via = 'call') => ({ id: ++bid, date: iso(dayAt(day)), time, name, phone, ppl, branch, status, note, ago, via });
-const bookings = [
+// Shown in demo mode, or until the reservations database is connected.
+const SAMPLE_BOOKINGS = [
   B(0, '11:30', 'Nguyễn Thu Hà', '0912 345 678', 2, 'golden-palace', 'confirmed', '', '2'),
   B(0, '12:00', 'Trần Minh Đức', '0983 112 908', 4, 'mon-city', 'confirmed'),
   B(0, '12:15', 'Lê Hoàng Anh', '0904 556 210', 3, 'phan-chu-trinh', 'noshow'),
@@ -585,6 +586,7 @@ const bookings = [
   B(1, '19:00', 'Sato Yui', '0703 118 942', 2, 'mon-city', 'new'),
   B(2, '18:00', 'Mai Anh Tuấn', '0398 552 017', 10, 'golden-palace', 'new', 'Nhóm 10 người, có trẻ em'),
 ];
+let bookings = [];
 const applications = [
   { name: 'Lương Văn Hiếu', phone: '0961 202 384', job: 'Phụ bếp ramen', date: iso(dayAt(0)), note: 'Có thể bắt đầu từ tháng 11', seen: false },
   { name: 'Phan Thị Hồng', phone: '0834 671 029', job: 'Phụ bếp ramen', date: iso(dayAt(-1)), note: 'Đã làm 1 năm tại quán phở', seen: false },
@@ -664,7 +666,8 @@ const T = {
     confirm: 'Xác nhận', cancel: 'Huỷ', noshow: 'Không đến', call: 'Gọi', zalo: 'Zalo', sms: 'SMS',
     noBookings: 'Không có đặt bàn nào cho bộ lọc này.', request: 'Yêu cầu đặc biệt', none: 'Không có', confirmVia: 'Khách muốn xác nhận qua', via_call: 'Gọi điện', via_sms: 'Tin nhắn SMS', via_zalo: 'Zalo',
     received: 'Nhận qua website', minsAgo: 'phút trước', hoursAgo: 'giờ trước', history: 'Lịch sử',
-    bookingN: 'Đặt bàn', date: 'Ngày', phone: 'Điện thoại', notifiedBy: 'Đã báo cho chi nhánh qua email và Zalo',
+    notNotified: 'Chưa báo được cho chi nhánh', newBooking: 'Đặt bàn mới', newBookings: 'đặt bàn mới', recent24: 'Đặt mới trong 24 giờ', fromSite: 'từ website, đã tự xác nhận', latest: 'Đặt bàn mới nhận', notifyOn: 'Bật thông báo trên máy này', notifyOnD: 'Báo khi có đặt bàn mới, kể cả khi đang mở tab khác.', bookingNoteLive: 'Form đặt bàn trên website dùng các quy tắc này. Đặt bàn online được xác nhận ngay và email được gửi tới chi nhánh.', savedSet: 'Đã lưu', guestMsgSoon: 'Chưa hoạt động: cần kết nối dịch vụ gửi SMS/Zalo.',
+    bookingN: 'Đặt bàn', date: 'Ngày', phone: 'Điện thoại', notifiedBy: 'Đã gửi email cho chi nhánh',
     marked: 'Đã chuyển sang', undo: 'Hoàn tác', lockedTo: 'Bạn chỉ thấy đặt bàn của chi nhánh', sampleRes: 'Đặt bàn đang là dữ liệu mẫu cho đến khi kết nối cơ sở dữ liệu.',
     newPost: 'Bài mới', p_published: 'Đang hiển thị', p_draft: 'Nháp', p_hidden: 'Đã ẩn', p_expired: 'Hết hạn',
     k_news: 'Tin tức', k_offer: 'Ưu đãi', edit: 'Sửa', hide: 'Ẩn', show: 'Hiện lại', del: 'Xoá', untilD: 'đến', noEnd: 'Không hết hạn',
@@ -759,7 +762,8 @@ const T = {
     confirm: 'Confirm', cancel: 'Cancel', noshow: 'No-show', call: 'Call', zalo: 'Zalo', sms: 'SMS',
     noBookings: 'No bookings for this filter.', request: 'Special request', none: 'None', confirmVia: 'Guest wants confirmation by', via_call: 'Phone call', via_sms: 'Text message', via_zalo: 'Zalo',
     received: 'Received via website', minsAgo: 'min ago', hoursAgo: 'h ago', history: 'History',
-    bookingN: 'Booking', date: 'Date', phone: 'Phone', notifiedBy: 'Branch notified by email and Zalo',
+    notNotified: 'Branch not notified', newBooking: 'New booking', newBookings: 'new bookings', recent24: 'New in the last 24 hours', fromSite: 'from the website, confirmed automatically', latest: 'Latest bookings', notifyOn: 'Turn on alerts on this device', notifyOnD: 'Get an alert for each new booking, even when another tab is open.', bookingNoteLive: 'The website’s booking form uses these rules. Online bookings are confirmed straight away and the branch gets an email.', savedSet: 'Saved', guestMsgSoon: 'Not active yet: needs an SMS/Zalo sending service.',
+    bookingN: 'Booking', date: 'Date', phone: 'Phone', notifiedBy: 'Branch notified by email',
     marked: 'Marked as', undo: 'Undo', lockedTo: 'You only see bookings for', sampleRes: 'Reservations are sample data until a database is connected.',
     newPost: 'New post', p_published: 'Live', p_draft: 'Draft', p_hidden: 'Hidden', p_expired: 'Expired',
     k_news: 'News', k_offer: 'Offer', edit: 'Edit', hide: 'Hide', show: 'Show again', del: 'Delete', untilD: 'until', noEnd: 'No end date',
@@ -873,6 +877,12 @@ const fmtDay = s => new Date(s + 'T00:00').toLocaleDateString(loc(), { weekday: 
 const fmtShort = s => s ? new Date(s + 'T00:00').toLocaleDateString(loc(), { day: '2-digit', month: '2-digit' }) : '';
 const isStaff = () => S.role === 'staff';
 const myBookings = () => isStaff() ? bookings.filter(b => b.branch === S.staffBranch) : bookings;
+// True once the server says the reservations database is connected.
+const dbOn = () => API.live() && !!S.server?.db && S.server.db !== 'off';
+// A booking from the API, in the shape the views use.
+const fromRow = r => ({ id: r.id, date: r.date, time: r.time, name: r.name, phone: r.phone, ppl: r.party_size, branch: r.branch, status: r.status, note: r.note || '', via: r.confirm_by, created: r.created_at, by: r.updated_by, notified: r.notified_at, notifyError: r.notify_error });
+const fmtWhen = s => new Date(s).toLocaleString(loc(), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+const bookingLine = b => `${b.name} · ${b.ppl} ${t('people')} · ${b.time} ${fmtShort(b.date)} · ${br(b.branch).short}`;
 const pick = (o, l) => (o && (o[l] || o.vi)) || '';
 const filled = o => LANGS.filter(l => o && o[l] && String(o[l]).trim());
 const clone = o => structuredClone(o);
@@ -955,12 +965,73 @@ async function login(email, password) {
   S.authed = true;
   afterLogin();
 }
+/* ── bookings: from the database when it's connected, sample data otherwise ── */
+let bookingTimer, settingsTimer;
+// Loads a month back to the end of the booking window (and around `day`,
+// when browsing further). Returns bookings not seen before this session.
+async function loadBookings(day = 0) {
+  if (!dbOn()) { if (!bookings.length) bookings = clone(SAMPLE_BOOKINGS); return []; }
+  const from = iso(dayAt(Math.min(-30, day - 7))), to = iso(dayAt(Math.max(+settings.booking.daysAhead + 1, day + 7)));
+  const rows = (await API.call('GET', `reservations?from=${from}&to=${to}`)).map(fromRow);
+  const fresh = S.seenIds ? rows.filter(b => !S.seenIds.has(b.id)) : [];
+  S.seenIds = new Set([...(S.seenIds || []), ...rows.map(b => b.id)]);
+  S.bRange = { from, to };
+  bookings = rows;
+  return fresh;
+}
+// Checks for new bookings every minute while signed in.
+function watchBookings() {
+  clearTimeout(bookingTimer);
+  if (!dbOn() || !S.authed) return;
+  bookingTimer = setTimeout(async () => {
+    if (!S.authed) return;
+    try {
+      const fresh = (await loadBookings(S.day)).filter(b => !isStaff() || b.branch === S.staffBranch);
+      if (fresh.length) {
+        const b = fresh[fresh.length - 1];
+        if ('Notification' in window && Notification.permission === 'granted' && document.hidden) new Notification('MUGI · ' + t('newBooking'), { body: bookingLine(b), icon: 'site/assets/mugi-icon.svg', tag: 'mugi-booking-' + b.id });
+        S.toast = null;
+        toast(fresh.length === 1 ? `${t('newBooking')}: ${bookingLine(b)}` : `${fresh.length} ${t('newBookings')}`);
+      }
+      // redraw only pages without inputs, and never under an open drawer or dialog
+      if (['overview', 'reservations'].includes(S.view) && !S.sel && !S.modal) render();
+      else document.getElementById('nav') && (document.getElementById('nav').innerHTML = vNav());
+    } catch {}
+    watchBookings();
+  }, 60000);
+}
+async function setBookingStatus(b, status) {
+  const prev = b.status;
+  b.status = status;
+  if (!dbOn()) return true;
+  try { Object.assign(b, fromRow(await API.call('POST', 'reservations/status', { id: b.id, status }))); return true; }
+  catch (e) { b.status = prev; toast(e.message); return false; }
+}
+// Booking rules and branch contacts live on the server once it has a database.
+async function loadServerSettings() {
+  if (!API.live()) return;
+  try { const s = await API.call('GET', 'settings'); settings.booking = { ...settings.booking, ...s.booking }; settings.notify = s.notify; } catch {}
+}
+function saveServerSettings() {
+  if (!dbOn()) return;
+  clearTimeout(settingsTimer);
+  settingsTimer = setTimeout(async () => {
+    try {
+      const s = await API.call('POST', 'settings', { booking: settings.booking, notify: settings.notify });
+      settings.booking = { ...settings.booking, ...s.booking }; settings.notify = s.notify;
+      toast(t('savedSet'));
+    } catch (e) { toast(e.errors ? e.errors.join(' · ') : e.message); }
+  }, 800);
+}
+
 function afterLogin() {
   if (!API.live()) { if (!S.content.news.length) S.content.news = clone(DEMO_NEWS); if (!S.content.jobs.length) S.content.jobs = clone(DEMO_JOBS); }
   const saved = store.get('mugi_site_draft');
   S.draft = saved && saved.base === hashOf(S.content) ? saved.draft : clone(S.content);
   S.view = isStaff() ? 'reservations' : 'overview';
+  bookings = dbOn() ? [] : clone(SAMPLE_BOOKINGS);
   render();
+  loadServerSettings().then(() => loadBookings()).then(() => { if (S.authed) { render(); watchBookings(); } }).catch(e => toast(e.message));
 }
 const hashOf = c => { const s = JSON.stringify({ ...c, news: 0, jobs: 0 }); let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return h; };
 
@@ -1085,7 +1156,8 @@ function submitSignup() {
 }
 
 function vNav() {
-  const nNew = myBookings().filter(b => b.status === 'new').length;
+  const seen = store.get('mugi_res_seen', '');
+  const nNew = dbOn() ? (S.view === 'reservations' ? 0 : myBookings().filter(b => b.created && b.created > seen).length) : myBookings().filter(b => b.status === 'new').length;
   const nApps = applications.filter(a => !a.seen).length;
   const nSite = draftCount();
   const nSignups = isStaff() ? 0 : signups().length;
@@ -1105,7 +1177,10 @@ function vNav() {
 function vOverview() {
   const td = today();
   const tb = bookings.filter(b => b.date === td);
-  const waiting = bookings.filter(b => b.status === 'new').sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  const dbl = dbOn();
+  // with the database, bookings confirm themselves: show what came in recently instead
+  const waiting = dbl ? bookings.filter(b => b.created && Date.now() - Date.parse(b.created) < 864e5).sort((a, b) => b.created.localeCompare(a.created))
+    : bookings.filter(b => b.status === 'new').sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   const guests = tb.filter(b => b.status !== 'cancelled').reduce((s, b) => s + b.ppl, 0);
   const posts = allPosts();
   const live = posts.filter(p => postStatus(p) === 'published');
@@ -1117,16 +1192,16 @@ function vOverview() {
   return `<div class="head"><div><span class="num">${esc(fmtDay(td))}</span><h1>${t('hello')} ${part}, ${esc(S.me.name)}</h1></div></div>
   <div class="tiles">
     <div class="tile"><div class="lbl">${t('todayBookings')}</div><div class="v">${tb.length}</div><div class="hint">${t('acrossBranches')}</div></div>
-    <div class="tile"><div class="lbl">${t('waiting')}</div><div class="v red">${waiting.length}</div><div class="hint">${t('needAction')}</div></div>
+    <div class="tile"><div class="lbl">${t(dbl ? 'recent24' : 'waiting')}</div><div class="v red">${waiting.length}</div><div class="hint">${t(dbl ? 'fromSite' : 'needAction')}</div></div>
     <div class="tile"><div class="lbl">${t('guestsToday')}</div><div class="v">${guests}</div><div class="hint">${BRANCHES.map(b => `${b.short} ${tb.filter(x => x.branch === b.id && x.status !== 'cancelled').reduce((s, x) => s + x.ppl, 0)}`).join(' · ')}</div></div>
     <div class="tile"><div class="lbl">${t('livePosts')}</div><div class="v">${live.length}</div><div class="hint">${t('onSite')}</div></div>
   </div>
   <div class="scroll"><div class="cols">
-    <div class="blk"><h2>${t('needConfirm')} <button data-act="go" data-v="reservations" data-st="new">${t('seeAll')} →</button></h2>
+    <div class="blk"><h2>${t(dbl ? 'latest' : 'needConfirm')} <button data-act="go" data-v="reservations" data-st="${dbl ? 'all' : 'new'}">${t('seeAll')} →</button></h2>
       ${waiting.length ? waiting.slice(0, 5).map(b => `<div class="mini">
         <span class="t">${b.time}</span>
         <div><b style="font-weight:500">${esc(b.name)}</b> · ${b.ppl} ${t('people')}<small>${esc(br(b.branch).short)} · ${esc(fmtDay(b.date))}</small></div>
-        <div class="qa"><button class="go" data-act="bst" data-id="${b.id}" data-v="confirmed">${t('confirm')}</button><button data-act="open" data-id="${b.id}" aria-label="${t('open')}">…</button></div>
+        <div class="qa">${b.status === 'new' ? `<button class="go" data-act="bst" data-id="${b.id}" data-v="confirmed">${t('confirm')}</button>` : stChip(b.status)}<button data-act="open" data-id="${b.id}" aria-label="${t('open')}">…</button></div>
       </div>`).join('') : `<p class="muted">${t('nothing')}</p>`}
     </div>
     <div class="stack" style="gap:36px">
@@ -1154,6 +1229,7 @@ function vReservations() {
   return `<div class="head"><div><span class="num">02 · 予約</span><h1>${t('reservations')}</h1></div>
     <div class="tools"><button class="cta ghost sm" data-act="export">↓ ${t('export')}</button></div></div>
   ${isStaff() ? `<div class="notice">${t('lockedTo')} <b>${esc(br(S.staffBranch).short)}</b>.</div>` : ''}
+  ${!dbOn() ? `<div class="notice">${t('sampleRes')}</div>` : 'Notification' in window && Notification.permission === 'default' ? `<div class="notice">${t('notifyOnD')} <button class="linkbtn" data-act="notifyOn">${t('notifyOn')}</button></div>` : ''}
   <div class="filters">
     <div class="frow">
       <div class="daynav">
@@ -1198,7 +1274,9 @@ function vDrawer() {
         <dt>${t('request')}</dt><dd>${b.note ? esc(b.note) : `<span class="muted">${t('none')}</span>`}</dd>
       </dl>
       <span class="flabel">${t('history')}</span>
-      <div class="hist"><p>${t('received')}${b.ago ? ` · ${b.ago === '0' ? '12 ' + t('minsAgo') : b.ago + ' ' + t('hoursAgo')}` : ''}</p><p>${t('notifiedBy')}</p>${b.status !== 'new' ? `<p>${t('marked')} “${t('s_' + b.status)}” · Hà Thị Mai</p>` : ''}</div>
+      <div class="hist">${b.created
+        ? `<p>${t('received')} · ${esc(fmtWhen(b.created))}</p>${b.notified ? `<p>${t('notifiedBy')}</p>` : `<p class="muted">${t('notNotified')}${b.notifyError ? `: ${esc(b.notifyError)}` : ''}</p>`}${b.by ? `<p>${t('marked')} “${t('s_' + b.status)}” · ${esc(b.by)}</p>` : ''}`
+        : `<p>${t('received')}${b.ago ? ` · ${b.ago === '0' ? '12 ' + t('minsAgo') : b.ago + ' ' + t('hoursAgo')}` : ''}</p><p>${t('notifiedBy')}</p>${b.status !== 'new' ? `<p>${t('marked')} “${t('s_' + b.status)}”</p>` : ''}`}</div>
     </div>
     <div class="df">
       <button class="cta ${b.status === 'confirmed' ? 'ghost' : 'red'}" data-act="bst" data-id="${b.id}" data-v="confirmed">${t('confirm')}</button>
@@ -1359,6 +1437,7 @@ function setSetting(key, v) {
   for (const k of p.slice(0, -1)) o = o[k] ??= {};
   o[p[p.length - 1]] = v;
   store.set('mugi_settings', settings);
+  if (p[0] === 'booking' || p[0] === 'notify') saveServerSettings();
 }
 function vSettings() {
   const owner = !isStaff();
@@ -1451,12 +1530,12 @@ function saveMember() {
 }
 function vSetBooking() {
   const b = settings.booking;
-  return `<div class="notice">${t('bookingNote')}</div>`
+  return `<div class="notice">${t(dbOn() ? 'bookingNoteLive' : 'bookingNote')}</div>`
     + sBlock(t('rules'), t('rulesD'), `<div class="row2">${sField('booking.maxOnline', t('maxOnline'), 'number', 'min="1" max="100"')}${sField('booking.daysAhead', t('daysAhead'), 'number', 'min="1" max="365"')}</div>
         <div class="row2">${sField('booking.lastLunch', t('lastLunch'), 'time')}${sField('booking.lastDinner', t('lastDinner'), 'time')}</div>`)
     + sBlock(t('closedDays'), t('closedD'), `<div class="closed">${b.closed.length ? b.closed.slice().sort().map(d => `<span>${esc(fmtDay(d))}<button data-act="delClosed" data-v="${d}" aria-label="${t('del')} ${d}">×</button></span>`).join('') : `<span class="muted" style="border:0;background:none;padding:0">${t('noClosed')}</span>`}</div>
         <div class="adder"><div class="field"><label for="s-closed">${t('dateL')}</label><input id="s-closed" type="date" min="${today()}"></div><button class="cta ghost sm" data-act="addClosed">${t('addDay')}</button></div>`)
-    + sBlock(t('guestMsg'), t('guestMsgD'), sCheck('booking.autoText', t('autoText')) + sCheck('booking.remind', t('remind')))
+    + sBlock(t('guestMsg'), t('guestMsgD'), `<p class="muted" style="margin:0 0 8px;font-size:13px">${t('guestMsgSoon')}</p>` + sCheck('booking.autoText', t('autoText')) + sCheck('booking.remind', t('remind')))
     + sBlock(t('branchNotify'), t('branchNotifyD'), BRANCHES.map(x => `<div class="bnotify"><b>${x.short}</b>${sField(`notify.${x.id}.email`, t('user'), 'email')}${sField(`notify.${x.id}.zalo`, t('zaloL'), 'tel')}</div>`).join(''));
 }
 // Sample traffic until a visitor-analytics tool is added to the site. Seeded by
@@ -2103,16 +2182,23 @@ document.addEventListener('click', async ev => {
     case 'retryPreview': reloadFrame(); return;
     case 'forgot': S.loginEmail = document.getElementById('u').value.trim(); S.loginNote = !S.loginNote; S.loginErr = ''; break;
     case 'pw': { const i = document.getElementById(el.getAttribute('aria-controls')), show = i.type === 'password'; i.type = show ? 'text' : 'password'; el.textContent = show ? t('pwHide') : t('pwShow'); el.setAttribute('aria-pressed', show); return; }
-    case 'logout': S.authed = false; S.edit = null; S.sel = null; S.token = null; sessionStorage.removeItem('mugi_token'); app.innerHTML = ''; break;
-    case 'go': S.view = v; S.edit = null; S.sel = null; S.viewing = null; if (el.dataset.st) S.status = el.dataset.st; if (el.dataset.tab) S.jobsTab = el.dataset.tab; if (el.dataset.tab2) S.setTab = el.dataset.tab2; window.scrollTo(0, 0); break;
-    case 'day': S.day = v === '0' ? 0 : S.day + +v; S.sel = null; break;
+    case 'logout': clearTimeout(bookingTimer); S.seenIds = null; S.authed = false; S.edit = null; S.sel = null; S.token = null; sessionStorage.removeItem('mugi_token'); app.innerHTML = ''; break;
+    case 'go': if (v === 'reservations') store.set('mugi_res_seen', new Date().toISOString()); S.view = v; S.edit = null; S.sel = null; S.viewing = null; if (el.dataset.st) S.status = el.dataset.st; if (el.dataset.tab) S.jobsTab = el.dataset.tab; if (el.dataset.tab2) S.setTab = el.dataset.tab2; window.scrollTo(0, 0); break;
+    case 'day': {
+      S.day = v === '0' ? 0 : S.day + +v; S.sel = null;
+      const d = iso(dayAt(S.day));
+      if (dbOn() && S.bRange && (d < S.bRange.from || d > S.bRange.to)) loadBookings(S.day).then(render).catch(e => toast(e.message));
+      break;
+    }
+    case 'notifyOn': if ('Notification' in window) await Notification.requestPermission(); break;
     case 'branch': S.branch = v; break;
     case 'status': S.status = v; break;
     case 'open': S.sel = +id; renderOverlay(); return;
     case 'close': S.sel = null; renderOverlay(); return;
     case 'bst': {
       const b = bookings.find(x => x.id === +id), prev = b.status;
-      b.status = v; S.lastUndo = () => { b.status = prev; };
+      if (!(await setBookingStatus(b, v))) break;
+      S.lastUndo = () => setBookingStatus(b, prev).then(() => render());
       toast(`${b.name}: ${t('marked')} “${t('s_' + v)}”`, true); break;
     }
     case 'undo': S.lastUndo?.(); S.toast = null; break;
@@ -2143,8 +2229,8 @@ document.addEventListener('click', async ev => {
     case 'saveMember': saveMember(); return;
     case 'removeMember': S.modal.confirmRemove = true; renderOverlay(); return;
     case 'doRemoveMember': users = users.filter(u => u.id !== S.modal.data.id); saveUsers(); toast(t('removed2')); closeModal(); return;
-    case 'addClosed': { const d = document.getElementById('s-closed').value; if (d && !settings.booking.closed.includes(d)) { settings.booking.closed.push(d); store.set('mugi_settings', settings); } break; }
-    case 'delClosed': settings.booking.closed = settings.booking.closed.filter(d => d !== v); store.set('mugi_settings', settings); break;
+    case 'addClosed': { const d = document.getElementById('s-closed').value; if (d && !settings.booking.closed.includes(d)) { settings.booking.closed.push(d); store.set('mugi_settings', settings); saveServerSettings(); } break; }
+    case 'delClosed': settings.booking.closed = settings.booking.closed.filter(d => d !== v); store.set('mugi_settings', settings); saveServerSettings(); break;
     case 'openHistory': S.view = 'site'; render(); setTimeout(() => document.querySelector('[data-act=history]')?.click(), 80); return;
     case 'dlContent': { const a2 = document.createElement('a'); a2.href = URL.createObjectURL(new Blob([JSON.stringify(S.content, null, 2) + '\n'], { type: 'application/json' })); a2.download = 'site.json'; a2.click(); return; }
     case 'elang': S.editLang = v; break;

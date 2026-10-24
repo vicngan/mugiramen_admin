@@ -26,6 +26,12 @@
   force = true
 
 [[redirects]]
+  from = "/db/*"
+  to = "/404"
+  status = 404
+  force = true
+
+[[redirects]]
   from = "/tools/*"
   to = "/404"
   status = 404
