@@ -79,6 +79,7 @@
   .ws .st.cancelled, .ws .st.hidden { color: #7d7064; }
   .ws .st.noshow, .ws .st.expired, .ws .st.changed { color: var(--warn); }
   .ws .st.draft { color: var(--ink); border-style: dashed; }
+  .ws .st.waitlist { color: var(--warn); border-style: dashed; }
 
   /* filters */
   .ws .filters { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
@@ -682,7 +683,10 @@ const T = {
     needConfirm: 'Cần xác nhận', seeAll: 'Xem tất cả', expiring: 'Ưu đãi sắp hết hạn', drafts: 'Bản nháp', nothing: 'Không có gì cần xử lý.', newApps: 'Hồ sơ ứng tuyển mới',
     siteDraft: 'Thay đổi website chưa đăng', open: 'Mở',
     today: 'Hôm nay', all: 'Tất cả', export: 'Tải Excel', allBranches: 'Tất cả chi nhánh',
-    s_new: 'Mới', s_confirmed: 'Đã xác nhận', s_cancelled: 'Đã huỷ', s_noshow: 'Không đến',
+    s_new: 'Mới', s_confirmed: 'Đã xác nhận', s_cancelled: 'Đã huỷ', s_noshow: 'Không đến', s_waitlist: 'Danh sách chờ',
+    addBooking: 'Thêm đặt bàn', src_phone: 'Qua điện thoại', src_walkin: 'Khách vãng lai', addedBy: 'thêm bởi', phoneOpt: 'Điện thoại (không bắt buộc với khách vãng lai)', nbAdded: 'Đã thêm',
+    fullForce: 'Giờ này đã hết bàn. Bấm “Vẫn thêm” để thêm dù vượt số bàn, hoặc đổi giờ.', addAnyway: 'Vẫn thêm', fullForceQ: 'Giờ này đã hết bàn. Vẫn giữ bàn cho khách này?', nbNeed: 'Nhập tên khách, ngày và giờ.',
+    offerTable: 'Mời vào bàn', removeWait: 'Xoá khỏi danh sách', waitD: 'Khách muốn giờ này nhưng đã hết bàn. Khi có bàn trống, bấm “Mời vào bàn” rồi gửi link xác nhận cho khách.',
     time: 'Giờ', guest: 'Khách', ppl: 'Số khách', branch: 'Chi nhánh', status: 'Trạng thái',
     confirm: 'Xác nhận', cancel: 'Huỷ', noshow: 'Không đến', call: 'Gọi', zalo: 'Zalo', sms: 'SMS',
     noBookings: 'Không có đặt bàn nào cho bộ lọc này.', request: 'Yêu cầu đặc biệt', none: 'Không có', confirmVia: 'Khách muốn xác nhận qua', via_call: 'Gọi điện', via_sms: 'Tin nhắn SMS', via_zalo: 'Zalo',
@@ -784,7 +788,10 @@ const T = {
     needConfirm: 'Needs confirming', seeAll: 'See all', expiring: 'Offers ending soon', drafts: 'Drafts', nothing: 'Nothing to do.', newApps: 'New applications',
     siteDraft: 'Unpublished website changes', open: 'Open',
     today: 'Today', all: 'All', export: 'Download Excel', allBranches: 'All branches',
-    s_new: 'New', s_confirmed: 'Confirmed', s_cancelled: 'Cancelled', s_noshow: 'No-show',
+    s_new: 'New', s_confirmed: 'Confirmed', s_cancelled: 'Cancelled', s_noshow: 'No-show', s_waitlist: 'Waiting list',
+    addBooking: 'Add booking', src_phone: 'By phone', src_walkin: 'Walk-in', addedBy: 'added by', phoneOpt: 'Phone (optional for walk-ins)', nbAdded: 'Added',
+    fullForce: 'No table is left at that time. Tap “Add anyway” to add it over the limit, or change the time.', addAnyway: 'Add anyway', fullForceQ: 'No table is left at that time. Give this guest a table anyway?', nbNeed: 'Enter the guest’s name, the date and the time.',
+    offerTable: 'Offer a table', removeWait: 'Remove from list', waitD: 'This guest wants a time that was full. When a table frees up, tap “Offer a table”, then send them the confirmation link.',
     time: 'Time', guest: 'Guest', ppl: 'Guests', branch: 'Branch', status: 'Status',
     confirm: 'Confirm', cancel: 'Cancel', noshow: 'No-show', call: 'Call', zalo: 'Zalo', sms: 'SMS',
     noBookings: 'No bookings for this filter.', request: 'Special request', none: 'None', confirmVia: 'Guest wants confirmation by', via_call: 'Phone call', via_sms: 'Text message', via_zalo: 'Zalo',
@@ -913,7 +920,7 @@ const myBookings = () => isStaff() ? bookings.filter(b => b.branch === S.staffBr
 // True once the server says the reservations database is connected.
 const dbOn = () => API.live() && !!S.server?.db && S.server.db !== 'off';
 // A booking from the API, in the shape the views use.
-const fromRow = r => ({ id: r.id, date: r.date, time: r.time, name: r.name, phone: r.phone, ppl: r.party_size, branch: r.branch, status: r.status, note: r.note || '', via: r.confirm_by, created: r.created_at, by: r.updated_by, notified: r.notified_at, notifyError: r.notify_error, token: r.confirm_token, lang: r.lang });
+const fromRow = r => ({ id: r.id, date: r.date, time: r.time, name: r.name, phone: r.phone, ppl: r.party_size, branch: r.branch, status: r.status, note: r.note || '', via: r.confirm_by, created: r.created_at, by: r.updated_by, notified: r.notified_at, notifyError: r.notify_error, token: r.confirm_token, lang: r.lang, source: r.source || 'web', updatedAt: r.updated_at });
 const fmtWhen = s => new Date(s).toLocaleString(loc(), { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 const bookingLine = b => `${b.name} · ${b.ppl} ${t('people')} · ${b.time} ${fmtShort(b.date)} · ${br(b.branch).short}`;
 const pick = (o, l) => (o && (o[l] || o.vi)) || '';
@@ -980,7 +987,7 @@ const API = {
       throw new Error(t('offlineShort'));
     }
     const data = await r.json().catch(() => ({}));
-    if (!r.ok) { const e = new Error(data.error || r.statusText); e.errors = data.errors; throw e; }
+    if (!r.ok) { const e = new Error(data.error || r.statusText); e.errors = data.errors; e.code = data.code; throw e; }
     return data;
   },
   live: () => !!S.server,
@@ -1059,12 +1066,72 @@ function watchBookings() {
     watchBookings();
   }, 60000);
 }
-async function setBookingStatus(b, status) {
+async function setBookingStatus(b, status, force) {
   const prev = b.status;
   b.status = status;
   if (!dbOn()) return true;
-  try { Object.assign(b, fromRow(await API.call('POST', 'reservations/status', { id: b.id, status }))); return true; }
-  catch (e) { b.status = prev; toast(e.message); return false; }
+  try { Object.assign(b, fromRow(await API.call('POST', 'reservations/status', { id: b.id, status, force }))); return true; }
+  catch (e) {
+    b.status = prev;
+    // no table left at that time: staff may still give one
+    if (e.code === 'full' && !force && confirm(t('fullForceQ'))) return setBookingStatus(b, status, true);
+    if (e.code !== 'full') toast(e.message);
+    return false;
+  }
+}
+// A booking taken by phone, or a walk-in, added from the Reservations page.
+function vAddBooking() {
+  const m = S.modal, d = m.data;
+  const f = (id, label, input) => `<div class="field"><label for="nb-${id}">${label}</label>${input}</div>`;
+  return `<div class="scrim top" data-act="closeModal"></div><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-t">
+    <div class="dh"><h2 id="dlg-t">${t('addBooking')}</h2><button class="x" data-act="closeModal" aria-label="Close">×</button></div>
+    <div class="db"><form class="stack" style="gap:18px" onsubmit="return false">
+      ${m.error ? `<div class="errs" role="alert">${esc(m.error)}</div>` : ''}
+      ${m.fullKey ? `<div class="notice" role="alert" style="margin:0">${t('fullForce')}</div>` : ''}
+      <div class="seg" role="group" style="align-self:flex-start">${['phone', 'walkin'].map(k => `<button type="button" class="${d.source === k ? 'on' : ''}" aria-pressed="${d.source === k}" data-act="nbSet" data-k="source" data-v="${k}">${t('src_' + k)}</button>`).join('')}</div>
+      <div class="row2">
+        ${f('branch', t('branch'), `<select id="nb-branch" data-m="branch" ${isStaff() ? 'disabled' : ''}>${BRANCHES.map(b => `<option value="${b.id}" ${d.branch === b.id ? 'selected' : ''}>${esc(b.short)}</option>`).join('')}</select>`)}
+        ${f('ppl', t('ppl'), `<input id="nb-ppl" type="number" min="1" max="100" data-m="party_size" value="${esc(d.party_size)}">`)}
+      </div>
+      <div class="row2">
+        ${f('date', t('date'), `<input id="nb-date" type="date" min="${today()}" data-m="date" value="${esc(d.date)}">`)}
+        ${f('time', t('time'), `<input id="nb-time" type="time" step="900" data-m="time" value="${esc(d.time)}">`)}
+      </div>
+      <div class="row2">
+        ${f('name', t('fullName'), `<input id="nb-name" data-m="name" maxlength="60" autocomplete="off" value="${esc(d.name)}">`)}
+        ${f('phone', d.source === 'walkin' ? t('phoneOpt') : t('phone'), `<input id="nb-phone" type="tel" data-m="phone" autocomplete="off" value="${esc(d.phone)}">`)}
+      </div>
+      ${f('note', t('request'), `<input id="nb-note" data-m="note" maxlength="500" value="${esc(d.note)}">`)}
+      ${f('st', t('status'), `<select id="nb-st" data-m="status">${['confirmed', 'new', 'waitlist'].map(s => `<option value="${s}" ${d.status === s ? 'selected' : ''}>${t('s_' + s)}</option>`).join('')}</select>`)}
+    </form></div>
+    <div class="df"><button class="cta ghost sm" data-act="closeModal">${t('cancel')}</button><button class="cta red sm" data-act="saveBooking" ${m.busy ? 'disabled' : ''}>${m.fullKey && m.fullKey === nbKey(d) ? t('addAnyway') : t('addBooking')}</button></div></div>`;
+}
+const nbKey = d => [d.branch, d.date, d.time, d.party_size, d.status].join('|');
+function openAddBooking() {
+  const day = iso(dayAt(Math.max(0, S.day)));
+  S.modal = { type: 'addBooking', data: { source: 'phone', branch: isStaff() ? S.staffBranch : S.branch !== 'all' ? S.branch : BRANCHES[0].id, date: day, time: '', party_size: 2, name: '', phone: '', note: '', status: 'confirmed' } };
+  renderOverlay(); setTimeout(() => document.getElementById('nb-time')?.focus(), 60);
+}
+async function saveBooking() {
+  const m = S.modal, d = m.data;
+  if (!d.name.trim() || !d.date || !d.time) { m.error = t('nbNeed'); renderOverlay(); return; }
+  const go = () => { S.view = 'reservations'; S.status = 'all'; S.day = Math.round((Date.parse(d.date) - Date.parse(today())) / 864e5); };
+  if (!dbOn()) {
+    bookings.push({ id: bookings.reduce((n, b) => Math.max(n, b.id), 0) + 1, date: d.date, time: d.time, name: d.name.trim(), phone: d.phone, ppl: Number(d.party_size), branch: d.branch, status: d.status, note: d.note, via: 'call', source: d.source });
+    go(); closeModal(); render(); toast(`${t('nbAdded')}: ${d.name}`); return;
+  }
+  m.busy = true; m.error = ''; renderOverlay();
+  try {
+    const r = await API.call('POST', 'reservations/add', { ...d, party_size: Number(d.party_size), force: m.fullKey === nbKey(d) });
+    S.seenIds?.add(r.id);
+    go(); closeModal();
+    await loadBookings(S.day).catch(() => {});
+    render(); toast(`${t('nbAdded')}: ${bookingLine(fromRow(r))}`);
+  } catch (e) {
+    m.busy = false;
+    if (e.code === 'full') m.fullKey = nbKey(d); else m.error = e.message;
+    renderOverlay();
+  }
 }
 // Booking rules and branch contacts live on the server once it has a database.
 async function loadServerSettings() {
@@ -1276,8 +1343,9 @@ function vNav() {
 function vOverview() {
   const td = today();
   const tb = bookings.filter(b => b.date === td);
-  const waiting = bookings.filter(b => b.status === 'new' && b.date >= td).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
-  const guests = tb.filter(b => b.status !== 'cancelled').reduce((s, b) => s + b.ppl, 0);
+  const waiting = bookings.filter(b => (b.status === 'new' || b.status === 'waitlist') && b.date >= td).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  const seated = b => b.status === 'new' || b.status === 'confirmed';
+  const guests = tb.filter(seated).reduce((s, b) => s + b.ppl, 0);
   const posts = allPosts();
   const live = posts.filter(p => postStatus(p) === 'published');
   const soon = live.filter(p => p.until);
@@ -1289,7 +1357,7 @@ function vOverview() {
   <div class="tiles">
     <div class="tile"><div class="lbl">${t('todayBookings')}</div><div class="v">${tb.length}</div><div class="hint">${t('acrossBranches')}</div></div>
     <div class="tile"><div class="lbl">${t('waiting')}</div><div class="v red">${waiting.length}</div><div class="hint">${t('needAction')}</div></div>
-    <div class="tile"><div class="lbl">${t('guestsToday')}</div><div class="v">${guests}</div><div class="hint">${BRANCHES.map(b => `${b.short} ${tb.filter(x => x.branch === b.id && x.status !== 'cancelled').reduce((s, x) => s + x.ppl, 0)}`).join(' · ')}</div></div>
+    <div class="tile"><div class="lbl">${t('guestsToday')}</div><div class="v">${guests}</div><div class="hint">${BRANCHES.map(b => `${b.short} ${tb.filter(x => x.branch === b.id && seated(x)).reduce((s, x) => s + x.ppl, 0)}`).join(' · ')}</div></div>
     <div class="tile"><div class="lbl">${t('livePosts')}</div><div class="v">${live.length}</div><div class="hint">${t('onSite')}</div></div>
   </div>
   <div class="scroll"><div class="cols">
@@ -1315,7 +1383,7 @@ function vOverview() {
   </div></div>`;
 }
 
-const STATUSES = ['new', 'confirmed', 'cancelled', 'noshow'];
+const STATUSES = ['new', 'confirmed', 'waitlist', 'cancelled', 'noshow'];
 function vReservations() {
   const date = iso(dayAt(S.day));
   const branch = isStaff() ? S.staffBranch : S.branch;
@@ -1323,7 +1391,7 @@ function vReservations() {
   const rows = ofDay.filter(b => S.status === 'all' || b.status === S.status).sort((a, b) => a.time.localeCompare(b.time));
   const cnt = s => ofDay.filter(b => b.status === s).length;
   return `<div class="head"><div><span class="num">02 · 予約</span><h1>${t('reservations')}</h1></div>
-    <div class="tools"><button class="cta ghost sm" data-act="export">↓ ${t('export')}</button></div></div>
+    <div class="tools"><button class="cta ghost sm" data-act="export">↓ ${t('export')}</button><button class="cta red sm" data-act="addBooking">+ ${t('addBooking')}</button></div></div>
   ${isStaff() ? `<div class="notice">${t('lockedTo')} <b>${esc(br(S.staffBranch).short)}</b>.</div>` : ''}
   ${!dbOn() ? `<div class="notice">${t('sampleRes')}</div>` : 'Notification' in window && Notification.permission === 'default' ? `<div class="notice">${t('notifyOnD')} <button class="linkbtn" data-act="notifyOn">${t('notifyOn')}</button></div>` : ''}
   <div class="filters">
@@ -1359,8 +1427,9 @@ function vDrawer() {
   <aside class="drawer" role="dialog" aria-modal="true" aria-label="${t('bookingN')} #${b.id}">
     <div class="dh"><div><span class="num">${t('bookingN')} #${b.id}</span><h2>${esc(b.name)}</h2><div style="margin-top:8px">${stChip(b.status)}</div></div><button class="x" data-act="close" aria-label="Close">×</button></div>
     <div class="db">
-      <div class="callrow"><a href="tel:${tel}">${t('call')}</a><a href="https://zalo.me/${tel}" target="_blank" rel="noopener">${t('zalo')}</a><a href="sms:${tel}">${t('sms')}</a></div>
-      ${b.status === 'new' && b.token ? `<span class="flabel">${t('askGuest')}</span><p class="muted" style="font-size:13px;margin:4px 0 0">${t('askGuestD')}</p>
+      ${b.status === 'waitlist' ? `<div class="notice" style="margin:0 0 12px">${t('waitD')}</div>` : ''}
+      ${tel ? `<div class="callrow"><a href="tel:${tel}">${t('call')}</a><a href="https://zalo.me/${tel}" target="_blank" rel="noopener">${t('zalo')}</a><a href="sms:${tel}">${t('sms')}</a></div>` : ''}
+      ${b.status === 'new' && b.token && tel ? `<span class="flabel">${t('askGuest')}</span><p class="muted" style="font-size:13px;margin:4px 0 0">${t('askGuestD')}</p>
       <div class="callrow"><a href="sms:${tel}?&body=${encodeURIComponent(askMessage(b))}">${t('sms')}</a><a href="https://zalo.me/${tel}" target="_blank" rel="noopener" data-act="askZalo" data-id="${b.id}">${t('zalo')}</a><button type="button" data-act="askCopy" data-id="${b.id}">${t('copyMsg')}</button></div>` : ''}
       <dl class="summary" style="margin-top:0">
         <dt>${t('date')}</dt><dd>${esc(fmtDay(b.date))}</dd>
@@ -1373,13 +1442,17 @@ function vDrawer() {
       </dl>
       <span class="flabel">${t('history')}</span>
       <div class="hist">${b.created
-        ? `<p>${t('received')} · ${esc(fmtWhen(b.created))}</p>${b.notified ? `<p>${t('notifiedBy')}</p>` : `<p class="muted">${t('notNotified')}${b.notifyError ? `: ${esc(b.notifyError)}` : ''}</p>`}${b.by ? `<p>${t('marked')} “${t('s_' + b.status)}” · ${esc(b.by === 'guest' ? t('byGuest') : b.by)}</p>` : ''}`
+        ? (b.source !== 'web' ? `<p>${t('src_' + b.source)} · ${t('addedBy')} ${esc(b.by || '')} · ${esc(fmtWhen(b.created))}</p>`
+          : `<p>${t('received')} · ${esc(fmtWhen(b.created))}</p>${b.notified ? `<p>${t('notifiedBy')}</p>` : `<p class="muted">${t('notNotified')}${b.notifyError ? `: ${esc(b.notifyError)}` : ''}</p>`}`)
+          + `${b.updatedAt && b.by ? `<p>${t('marked')} “${t('s_' + b.status)}” · ${esc(b.by === 'guest' ? t('byGuest') : b.by)}</p>` : ''}`
         : `<p>${t('received')}${b.ago ? ` · ${b.ago === '0' ? '12 ' + t('minsAgo') : b.ago + ' ' + t('hoursAgo')}` : ''}</p><p>${t('notifiedBy')}</p>${b.status !== 'new' ? `<p>${t('marked')} “${t('s_' + b.status)}”</p>` : ''}`}</div>
     </div>
-    <div class="df">
+    <div class="df">${b.status === 'waitlist' ? `
+      <button class="cta red" data-act="bst" data-id="${b.id}" data-v="new">${t('offerTable')}</button>
+      <button class="cta ghost" data-act="bst" data-id="${b.id}" data-v="cancelled">${t('removeWait')}</button>` : `
       <button class="cta ${b.status === 'confirmed' ? 'ghost' : 'red'}" data-act="bst" data-id="${b.id}" data-v="confirmed">${t('confirm')}</button>
       <button class="cta ghost" data-act="bst" data-id="${b.id}" data-v="cancelled">${t('cancel')}</button>
-      <button class="cta ghost" data-act="bst" data-id="${b.id}" data-v="noshow">${t('noshow')}</button>
+      <button class="cta ghost" data-act="bst" data-id="${b.id}" data-v="noshow">${t('noshow')}</button>`}
     </div>
   </aside>`;
 }
@@ -2161,6 +2234,7 @@ function vModal() {
       : `<button class="cta red sm" data-act="publishSite">${t('publishSite')}</button>`}</div></div>`;
   }
   if (m.type === 'member') return vMemberDialog();
+  if (m.type === 'addBooking') return vAddBooking();
   if (m.type === 'link') return `<div class="scrim top" data-act="closeModal"></div><div class="dlg" role="dialog" aria-modal="true" aria-labelledby="dlg-t">
     <div class="dh"><h2 id="dlg-t">${esc(t('linkTitle').replace('{name}', m.name))}</h2><button class="x" data-act="closeModal" aria-label="Close">×</button></div>
     <div class="db"><p class="muted" style="margin:0 0 14px">${t('linkD')}</p><div class="field"><label for="lk-url">Link</label><input id="lk-url" readonly value="${esc(m.url)}" onfocus="this.select()"></div></div>
@@ -2365,6 +2439,9 @@ document.addEventListener('click', async ev => {
       if (accountsOn()) { try { await API.call('POST', 'staff/remove', { id }); await loadMembers(); toast(t('declined')); } catch (e) { toast(e.message); } break; }
       store.set('mugi_signups', signups().filter(x => x.id !== id)); toast(t('declined')); break;
     case 'saveMember': saveMember(); return;
+    case 'addBooking': openAddBooking(); return;
+    case 'nbSet': S.modal.data[el.dataset.k] = v; renderOverlay(); return;
+    case 'saveBooking': saveBooking(); return;
     case 'removeMember': S.modal.confirmRemove = true; renderOverlay(); return;
     case 'doRemoveMember':
       if (accountsOn()) { try { await API.call('POST', 'staff/remove', { id: S.modal.data.id }); await loadMembers(); render(); toast(t('removed2')); closeModal(); } catch (e) { S.modal.errors = [e.message]; renderOverlay(); } return; }

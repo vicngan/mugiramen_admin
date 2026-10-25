@@ -102,6 +102,16 @@ ceil(guests / guests per table) tables from their start time; cancelled and
 no-shows free them. The form greys out full times (`/api/availability`),
 and a booking for a full time is refused with the nearest free times.
 
+**Waiting list.** A full time can still be picked on the website: the
+guest joins its waiting list (status `waitlist`, which holds no table). In
+the portal, "Offer a table" moves them to new (asking first if there's still
+no table), and staff send the confirmation link as usual. From their link,
+a guest on the list can leave it but not confirm.
+
+**Adding bookings.** Reservations → "+ Add booking" takes a booking by phone
+or a walk-in (no phone number needed). The online rules don't apply, but it
+holds tables like any other; if none is left, staff can add it anyway.
+
 **Confirming.** Staff confirm in the portal, or send the guest their link
 from the booking's details (SMS with the message filled in, or Zalo with it
 copied). The link is `reservation.html#c=<token>` on the website, where the
