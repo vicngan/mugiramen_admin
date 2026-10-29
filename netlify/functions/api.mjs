@@ -4,7 +4,7 @@
 // Site settings → Environment variables:
 //   ADMIN_PASSWORD   required: the sign-in password
 //   GITHUB_TOKEN     fine-grained token, "Contents: read and write" on this repo
-//   GITHUB_REPO      the public site's repo, e.g. vicngan/mugiramen_webpage
+//   GITHUB_REPO      the public site's repo, e.g. ACASOHQ/mugiramen_webpage
 //   GITHUB_BRANCH    optional, defaults to main (the branch the site deploys from)
 //   SESSION_SECRET   optional, any long random string
 //   UMAMI_API_KEY, UMAMI_WEBSITE_ID   optional, real visitor numbers

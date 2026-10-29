@@ -2,7 +2,7 @@
 
 The staff portal for the MUGI Ramen & Izakaya website. It's a separate repo
 and a separate Netlify site from the public website
-([mugiramen_webpage](https://github.com/vicngan/mugiramen_webpage)).
+([mugiramen_webpage](https://github.com/ACASOHQ/mugiramen_webpage)).
 
 Staff edit the website's text, photos and menu, post news and job openings,
 and handle reservations and settings. Everything they publish is written to
@@ -62,7 +62,7 @@ file), the portal runs in demo mode and nothing is saved.
      is refused).
    - `GITHUB_TOKEN`: a fine-grained token for the website repo only, with
      *Contents: read and write*.
-   - `GITHUB_REPO`: `vicngan/mugiramen_webpage`.
+   - `GITHUB_REPO`: `ACASOHQ/mugiramen_webpage`.
    - `GITHUB_BRANCH`: optional, defaults to `main`. It must be the branch the
      website deploys from.
    - `SESSION_SECRET`: optional, any long random string. Changing it (or the
